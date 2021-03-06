@@ -1,6 +1,10 @@
-mod executionr;
 mod guessr;
 
 fn main() {
-    println!("Hello, world!");
+    test();
+}
+
+fn test() {
+    let guesser = guessr::Guessr::guessr_builder();
+    println!("{}", guesser.words.len());
 }
