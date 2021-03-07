@@ -1,10 +1,14 @@
 use std::collections::HashMap;
 use std::error::Error;
 
+const alphabet: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ-"; //sorted by how common they appear in the scrabble dictionary
+
 #[derive(Debug)]
 pub struct Guessr {
     words: HashMap<String, f64>,
     guesses: Vec<char>,
+    last_regex: regex::Regex,
+    last_guess: Option<char>,
 }
 
 impl Guessr {
@@ -22,7 +26,22 @@ impl Guessr {
                 blank_slate.len(),
             ),
             guesses: Vec::new(),
+            last_regex: regex::Regex::new(blank_slate).unwrap(),
+            last_guess: None,
         })
+    }
+
+    pub fn new_regex(&mut self, pattern: regex::Regex) {
+        if pattern.as_str() == self.last_regex.as_str() {
+            //you really shouldn't have to convert them to strings
+            self.words = filter_out_letter(self.words.clone(), self.last_guess.unwrap());
+            //clone feels like an antipattern here
+        } else {
+            self.words = filter_regex(self.words.clone(), pattern);
+        }
+    }
+    pub fn already_won(&self) -> bool {
+        self.words.len() == 1
     }
 }
 
@@ -63,7 +82,15 @@ fn filter_length(words: HashMap<String, f64>, length: usize) -> HashMap<String, 
     filtered_words
 }
 
-//TODO: see above
+fn filter_out_letter(words: HashMap<String, f64>, letter: char) -> HashMap<String, f64> {
+    let mut filtered_words = HashMap::with_capacity(words.len() / 2);
+    for (word, prevalence) in words {
+        if !word.contains(letter) {
+            filtered_words.insert(word, prevalence);
+        }
+    }
+    filtered_words
+}
 
 fn filter_regex(words: HashMap<String, f64>, pattern: regex::Regex) -> HashMap<String, f64> {
     let mut filtered_words = HashMap::with_capacity(words.len() / 10);
