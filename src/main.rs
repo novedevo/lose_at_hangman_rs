@@ -1,4 +1,5 @@
 mod guessr;
+mod executionr;
 
 fn main() {
     test();
@@ -6,8 +7,15 @@ fn main() {
 
 fn test() {
     
-    let guesser = guessr::Guessr::guessr("data/English_Word_Prevalences.csv", "data/words.txt", ".....");
+    let mut guesser = guessr::Guessr::guessr("data/English_Word_Prevalences.csv", "data/words.txt", ".....").unwrap();
+    let mut executioner = executionr::Executionr::executionr(String::from("APPLE"));
     
-    println!("{:?}", guesser)
+    while executioner.wrong_guesses <= 6 && !guesser.already_won() {
+        guesser.print_wordlist();
+        let guess = guesser.guess();
+        let pattern = executioner.execute(guess);
+        executioner.print_bad_guesses();
+        guesser.new_regex(pattern);
+    }
     
 }

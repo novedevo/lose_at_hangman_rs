@@ -31,18 +31,45 @@ impl Guessr {
         })
     }
 
+    pub fn guess(&mut self) -> char {
+        let mut max: (char, u32) = ('#', 0);
+        for (letter, prevalence) in get_letter_prevalences(&self.words) {
+            if max.1 < prevalence && !self.guesses.contains(&letter){
+                max = (letter, prevalence);
+            }
+        }
+        self.last_guess = Some(max.0);
+        self.guesses.push(max.0);
+        max.0
+    }
     pub fn new_regex(&mut self, pattern: regex::Regex) {
+        //guards against additional characters of the previous guess in the wrong places
+        self.words = filter_letter_count(
+            self.words.clone(), //feels like an antipattern
+            self.last_guess.unwrap(),
+            pattern.as_str().matches(self.last_guess.unwrap()).count(),
+        );
+
         if pattern.as_str() == self.last_regex.as_str() {
             //you really shouldn't have to convert them to strings
-            self.words = filter_out_letter(self.words.clone(), self.last_guess.unwrap());
-            //clone feels like an antipattern here
         } else {
             self.words = filter_regex(self.words.clone(), pattern);
         }
+
         if self.already_won() {}
+        self.words.shrink_to_fit(); //conserve memory
     }
+
     pub fn already_won(&self) -> bool {
         self.words.len() == 1
+    }
+
+    pub fn print_letter_frequencies(&self) {
+        println!("{:?}", get_letter_prevalences(&self.words))
+    }
+
+    pub fn print_wordlist(&self) {
+        println!("{:?}", &self.words);
     }
 }
 
@@ -50,7 +77,7 @@ fn get_letter_prevalences(words: &HashMap<String, f64>) -> HashMap<char, u32> {
     let mut prevalences: HashMap<char, u32> = ALPHABET.chars().zip(std::iter::repeat(0)).collect();
     for word in words.keys() {
         let charset: std::collections::BTreeSet<char> = word.chars().collect();
-        for letter in  charset{
+        for letter in charset {
             *prevalences.entry(letter).or_default() += 1;
         }
     }
@@ -94,10 +121,10 @@ fn filter_length(words: HashMap<String, f64>, length: usize) -> HashMap<String, 
     filtered_words
 }
 
-fn filter_out_letter(words: HashMap<String, f64>, letter: char) -> HashMap<String, f64> {
-    let mut filtered_words = HashMap::with_capacity(words.len() / 2);
+fn filter_letter_count(words: HashMap<String, f64>, letter: char, letter_count: usize) -> HashMap<String, f64> {
+    let mut filtered_words = HashMap::with_capacity(words.len());
     for (word, prevalence) in words {
-        if !word.contains(letter) {
+        if word.matches(letter).count() == letter_count {
             filtered_words.insert(word, prevalence);
         }
     }
