@@ -1,7 +1,32 @@
 use std::collections::HashMap;
 use std::error::Error;
 
-pub fn add_ordered(mut words: HashMap<String, f64>, csv_path: &str) -> Result<HashMap<String, f64>, Box<dyn Error>> {
+#[derive(Debug)]
+pub struct Guessr {
+    words: HashMap<String, f64>,
+    guesses: Vec<char>,
+}
+
+impl Guessr {
+    pub fn guessr(
+        ordered_word_file: &str,
+        unordered_word_file: &str,
+        blank_slate: &str,
+    ) -> Result<Guessr, Box<dyn Error>> {
+        Ok(Guessr {
+            words: filter_length(
+                add_ordered(
+                    add_unordered(HashMap::with_capacity(300_000), unordered_word_file)?,
+                    ordered_word_file,
+                )?,
+                blank_slate.len(),
+            ),
+            guesses: Vec::new(),
+        })
+    }
+}
+
+fn add_ordered(mut words: HashMap<String, f64>, csv_path: &str) -> Result<HashMap<String, f64>, Box<dyn Error>> {
     //honestly I have no idea what a dyn Error is
 
     let mut rdr = csv::Reader::from_path(csv_path)?; //passes errors to caller
@@ -15,13 +40,11 @@ pub fn add_ordered(mut words: HashMap<String, f64>, csv_path: &str) -> Result<Ha
     Ok(words)
 }
 
-pub fn add_unordered(
-    mut words: HashMap<String, f64>,
-    wordfile_path: &str,
-) -> Result<HashMap<String, f64>, Box<dyn Error>> {
+fn add_unordered(mut words: HashMap<String, f64>, wordfile_path: &str) -> Result<HashMap<String, f64>, Box<dyn Error>> {
     //honestly I have no idea what a dyn Error is
 
-    for line in std::fs::read_to_string(wordfile_path)?.lines() { //passes IO errors back to caller
+    for line in std::fs::read_to_string(wordfile_path)?.lines() {
+        //passes IO errors back to caller
         words.insert(String::from(line), 0.01);
     }
 
@@ -30,8 +53,8 @@ pub fn add_unordered(
 
 //TODO: refactor these filters once I learn how to use closures
 
-pub fn filter_length(words: HashMap<String, f64>, length: usize) -> HashMap<String, f64> {
-    let mut filtered_words = HashMap::with_capacity(words.len()/10);
+fn filter_length(words: HashMap<String, f64>, length: usize) -> HashMap<String, f64> {
+    let mut filtered_words = HashMap::with_capacity(words.len() / 10);
     for (word, prevalence) in words {
         if word.len() == length {
             filtered_words.insert(word, prevalence);
@@ -42,14 +65,12 @@ pub fn filter_length(words: HashMap<String, f64>, length: usize) -> HashMap<Stri
 
 //TODO: see above
 
-pub fn filter_regex(words: HashMap<String, f64>, pattern: regex::Regex) -> HashMap<String, f64> {
-    let mut filtered_words = HashMap::with_capacity(words.len()/10);
-    
+fn filter_regex(words: HashMap<String, f64>, pattern: regex::Regex) -> HashMap<String, f64> {
+    let mut filtered_words = HashMap::with_capacity(words.len() / 10);
     for (word, prevalence) in words {
         if pattern.is_match(&word) {
             filtered_words.insert(word, prevalence);
         }
     }
-    
     filtered_words
 }
