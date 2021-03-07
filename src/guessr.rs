@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::error::Error;
 
-const alphabet: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ-"; //sorted by how common they appear in the scrabble dictionary
+const ALPHABET: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ-"; //sorted by how common they appear in the scrabble dictionary
 
 #[derive(Debug)]
 pub struct Guessr {
@@ -39,10 +39,22 @@ impl Guessr {
         } else {
             self.words = filter_regex(self.words.clone(), pattern);
         }
+        if self.already_won() {}
     }
     pub fn already_won(&self) -> bool {
         self.words.len() == 1
     }
+}
+
+fn get_letter_prevalences(words: &HashMap<String, f64>) -> HashMap<char, u32> {
+    let mut prevalences: HashMap<char, u32> = ALPHABET.chars().zip(std::iter::repeat(0)).collect();
+    for word in words.keys() {
+        let charset: std::collections::BTreeSet<char> = word.chars().collect();
+        for letter in  charset{
+            *prevalences.entry(letter).or_default() += 1;
+        }
+    }
+    prevalences
 }
 
 fn add_ordered(mut words: HashMap<String, f64>, csv_path: &str) -> Result<HashMap<String, f64>, Box<dyn Error>> {
