@@ -64,12 +64,19 @@ impl Guessr {
         self.words.len() == 1
     }
 
-    pub fn print_letter_frequencies(&self) {
+    pub fn _print_letter_frequencies(&self) {
         println!("{:?}", get_letter_prevalences(&self.words))
     }
 
-    pub fn print_wordlist(&self) {
+    pub fn _print_wordlist(&self) {
         println!("{:?}", &self.words);
+    }
+    
+    pub fn print_last_guess(&self) {
+        match self.last_guess {
+            None => println!("No guesses have yet been made."),
+            Some(l) => println!("{}", l)
+        }
     }
 }
 

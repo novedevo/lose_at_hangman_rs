@@ -34,7 +34,7 @@ impl Executionr {
         self.current_regex.clone()
         
     }
-    pub fn print_bad_guesses(&self){
+    pub fn _print_bad_guesses(&self){
         println!("{}", self.wrong_guesses)
     }
 }
