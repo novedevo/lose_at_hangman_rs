@@ -36,4 +36,7 @@ impl Executionr {
     pub fn _print_bad_guesses(&self) {
         println!("{}", self.wrong_guesses)
     }
+    pub fn already_lost(&self) -> bool{
+        self.wrong_guesses >= self.guess_limit
+    }
 }

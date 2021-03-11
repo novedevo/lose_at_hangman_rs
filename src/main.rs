@@ -81,7 +81,7 @@ fn test(word: String) {
     )
     .unwrap();
     let mut executioner = executionr::Executionr::new(String::from(&word));
-    while executioner.wrong_guesses <= 6 && !guesser.already_won() {
+    while executioner.wrong_guesses <= 6 && !guesser.already_won() && !executioner.already_lost(){
         let guess = guesser.guess();
         guesser.print_last_guess();
         guesser.new_regex(executioner.execute(guess));
