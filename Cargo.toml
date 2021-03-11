@@ -4,6 +4,11 @@ version = "0.1.0"
 authors = ["Devon Burnham <novedevo@gmail.com>"]
 edition = "2018"
 
+[profile.dev]
+# opt-level = 1
+
+# otherwise it takes about a second to process the data at first
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
