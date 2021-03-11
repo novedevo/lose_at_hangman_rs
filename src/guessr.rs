@@ -12,12 +12,12 @@ pub struct Guessr {
 }
 
 impl Guessr {
-    pub fn guessr(
+    pub fn new(
         ordered_word_file: &str,
         unordered_word_file: &str,
         blank_slate: &str,
-    ) -> Result<Guessr, Box<dyn Error>> {
-        Ok(Guessr {
+    ) -> Result<Self, Box<dyn Error>> {
+        Ok(Self {
             words: filter_length(
                 add_ordered(
                     add_unordered(HashMap::with_capacity(300_000), unordered_word_file)?,
@@ -77,6 +77,18 @@ impl Guessr {
             None => println!("No guesses have yet been made."),
             Some(l) => println!("{}", l)
         }
+    }
+    
+    //consumes the guesser!
+    pub fn final_answer(self) -> String {
+        let max = 0.0;
+        let mut retval = String::from("No idea :(");
+        for key in self.words {
+            if key.1 > max {
+                retval = key.0;
+            }
+        }
+        retval
     }
 }
 
