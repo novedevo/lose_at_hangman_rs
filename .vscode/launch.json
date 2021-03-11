@@ -19,7 +19,9 @@
                     "kind": "bin"
                 }
             },
-            "args": ["--interactive"],
+            "args": [
+                "--interactive"
+            ],
             // "args": ["pineapple"],
             "cwd": "${workspaceFolder}"
         },
@@ -39,7 +41,9 @@
                     "kind": "bin"
                 }
             },
-            "args": ["pineapple"],
+            "args": [
+                "pineapple"
+            ],
             "cwd": "${workspaceFolder}"
         }
     ]

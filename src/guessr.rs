@@ -12,11 +12,7 @@ pub struct Guessr {
 }
 
 impl Guessr {
-    pub fn new(
-        ordered_word_file: &str,
-        unordered_word_file: &str,
-        blank_slate: &str,
-    ) -> Result<Self, Box<dyn Error>> {
+    pub fn new(ordered_word_file: &str, unordered_word_file: &str, blank_slate: &str) -> Result<Self, Box<dyn Error>> {
         Ok(Self {
             words: filter_length(
                 add_ordered(
@@ -34,7 +30,7 @@ impl Guessr {
     pub fn guess(&mut self) -> char {
         let mut max: (char, u32) = ('#', 0);
         for (letter, prevalence) in get_letter_prevalences(&self.words) {
-            if max.1 < prevalence && !self.guesses.contains(&letter){
+            if max.1 < prevalence && !self.guesses.contains(&letter) {
                 max = (letter, prevalence);
             }
         }
@@ -71,14 +67,14 @@ impl Guessr {
     pub fn _print_wordlist(&self) {
         println!("{:?}", &self.words);
     }
-    
+
     pub fn print_last_guess(&self) {
         match self.last_guess {
             None => println!("No guesses have yet been made."),
-            Some(l) => println!("{}", l)
+            Some(l) => println!("{}", l),
         }
     }
-    
+
     //consumes the guesser!
     pub fn final_answer(self) -> String {
         let max = 0.0;

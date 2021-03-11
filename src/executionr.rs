@@ -16,7 +16,7 @@ impl Executionr {
     }
     pub fn execute(&mut self, guess: char) -> regex::Regex {
         if !self.word.contains(guess) {
-        self.wrong_guesses += 1;
+            self.wrong_guesses += 1;
         } else {
             let word_as_vector: Vec<char> = self.word.chars().collect();
 
@@ -27,14 +27,13 @@ impl Executionr {
                     letter
                 }
             });
-            
+
             self.current_regex = regex::Regex::new(&next_regex_string.collect::<String>()).unwrap();
         }
-        
+
         self.current_regex.clone()
-        
     }
-    pub fn _print_bad_guesses(&self){
+    pub fn _print_bad_guesses(&self) {
         println!("{}", self.wrong_guesses)
     }
 }
