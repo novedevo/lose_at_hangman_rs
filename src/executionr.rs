@@ -6,8 +6,8 @@ pub struct Executionr {
 }
 
 impl Executionr {
-    pub fn executionr(word: String) -> Executionr {
-        Executionr {
+    pub fn new(word: String) -> Self {
+        Self {
             wrong_guesses: 0,
             guess_limit: 6,
             current_regex: regex::Regex::new(&".".repeat(word.len())).unwrap(),
