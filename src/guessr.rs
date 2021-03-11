@@ -12,12 +12,12 @@ pub struct Guessr {
 }
 
 impl Guessr {
-    pub fn new(ordered_word_file: &str, unordered_word_file: &str, blank_slate: &str) -> Result<Self, Box<dyn Error>> {
+    pub fn new(ordered_words_csv: &str, unordered_words: &str, blank_slate: &str) -> Result<Self, Box<dyn Error>> {
         Ok(Self {
             words: filter_length(
                 add_ordered(
-                    add_unordered(HashMap::with_capacity(300_000), unordered_word_file)?,
-                    ordered_word_file,
+                    add_unordered(HashMap::with_capacity(300_000), unordered_words)?,
+                    ordered_words_csv,
                 )?,
                 blank_slate.len(),
             ),
@@ -99,10 +99,10 @@ fn get_letter_prevalences(words: &HashMap<String, f64>) -> HashMap<char, u32> {
     prevalences
 }
 
-fn add_ordered(mut words: HashMap<String, f64>, csv_path: &str) -> Result<HashMap<String, f64>, Box<dyn Error>> {
+fn add_ordered(mut words: HashMap<String, f64>, csv_string: &str) -> Result<HashMap<String, f64>, Box<dyn Error>> {
     //honestly I have no idea what a dyn Error is
 
-    let mut rdr = csv::Reader::from_path(csv_path)?; //passes errors to caller
+    let mut rdr = csv::Reader::from_reader(csv_string.as_bytes()); //passes errors to caller
     type Record = (String, f64, u32, f64, f64); //structure of the csv
 
     for result in rdr.deserialize() {
@@ -113,10 +113,10 @@ fn add_ordered(mut words: HashMap<String, f64>, csv_path: &str) -> Result<HashMa
     Ok(words)
 }
 
-fn add_unordered(mut words: HashMap<String, f64>, wordfile_path: &str) -> Result<HashMap<String, f64>, Box<dyn Error>> {
+fn add_unordered(mut words: HashMap<String, f64>, words_string: &str) -> Result<HashMap<String, f64>, Box<dyn Error>> {
     //honestly I have no idea what a dyn Error is
 
-    for line in std::fs::read_to_string(wordfile_path)?.lines() {
+    for line in words_string.lines() {
         //passes IO errors back to caller
         words.insert(String::from(line), 0.01);
     }

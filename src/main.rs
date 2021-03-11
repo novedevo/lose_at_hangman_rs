@@ -44,8 +44,8 @@ fn interact() {
         .expect("Could not parse your input. Are you sure you entered the right length?");
 
     let mut guesser = guessr::Guessr::new(
-        "data/English_Word_Prevalences.csv",
-        "data/words.txt",
+        include_str!("../data/ordered_words.csv"),
+        include_str!("../data/words.txt"),
         &".".repeat(length),
     )
     .unwrap();
@@ -75,8 +75,8 @@ fn interact() {
 
 fn test(word: String) {
     let mut guesser = guessr::Guessr::new(
-        "data/English_Word_Prevalences.csv",
-        "data/words.txt",
+        include_str!("../data/ordered_words.csv"),
+        include_str!("../data/words.txt"),
         &".".repeat(word.len()),
     )
     .unwrap();
