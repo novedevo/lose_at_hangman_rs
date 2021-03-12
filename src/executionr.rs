@@ -1,5 +1,5 @@
 pub struct Executionr {
-    pub wrong_guesses: u32,
+    wrong_guesses: u32,
     guess_limit: u32,
     word: String,
     current_regex: regex::Regex,
