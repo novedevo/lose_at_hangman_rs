@@ -1,9 +1,12 @@
 use std::collections::HashMap;
 use std::error::Error;
+use wasm_bindgen::prelude::*;
+
+use regex::Regex;
 
 const ALPHABET: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ-"; //sorted by how common they appear in the scrabble dictionary
 
-#[derive(Debug)]
+#[wasm_bindgen]
 pub struct Guessr {
     words: HashMap<String, f64>,
     guesses: Vec<char>,
@@ -11,20 +14,22 @@ pub struct Guessr {
     last_guess: Option<char>,
 }
 
+#[wasm_bindgen]
 impl Guessr {
-    pub fn new(ordered_words_csv: &str, unordered_words: &str, blank_slate: &str) -> Result<Self, Box<dyn Error>> {
-        Ok(Self {
+    pub fn new(ordered_words_csv: &str, unordered_words: &str, blank_slate: &str) -> Guessr {
+        Guessr {
             words: filter_length(
                 add_ordered(
-                    add_unordered(HashMap::with_capacity(300_000), unordered_words)?,
+                    add_unordered(HashMap::with_capacity(300_000), unordered_words).unwrap(),
                     ordered_words_csv,
-                )?,
+                )
+                .unwrap(),
                 blank_slate.len(),
             ),
             guesses: Vec::new(),
             last_regex: regex::Regex::new(blank_slate).unwrap(),
             last_guess: None,
-        })
+        }
     }
 
     pub fn guess(&mut self) -> char {
@@ -38,8 +43,9 @@ impl Guessr {
         self.guesses.push(max.0);
         max.0
     }
-    pub fn new_regex(&mut self, pattern: regex::Regex) {
+    pub fn new_regex(&mut self, pattern: &str) {
         //guards against additional characters of the previous guess in the wrong places
+        let pattern = Regex::new(pattern).unwrap();
         self.words = filter_letter_count(
             self.words.clone(), //feels like an antipattern
             self.last_guess.unwrap(),
@@ -60,15 +66,15 @@ impl Guessr {
         self.words.len() == 1
     }
 
-    pub fn _print_letter_frequencies(&self) {
+    fn _print_letter_frequencies(&self) {
         println!("{:?}", get_letter_prevalences(&self.words))
     }
 
-    pub fn _print_wordlist(&self) {
+    fn _print_wordlist(&self) {
         println!("{:?}", &self.words);
     }
 
-    pub fn print_last_guess(&self) {
+    fn _print_last_guess(&self) {
         match self.last_guess {
             None => println!("No guesses have yet been made."),
             Some(l) => println!("{}", l),

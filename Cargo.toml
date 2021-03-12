@@ -7,9 +7,10 @@ edition = "2018"
 [lib]
 name = "lose_at_hangman"
 path = "src/lib.rs"
+crate-type = ["cdylib"]
 
 [profile.dev]
-# opt-level = 1
+opt-level = 1
 
 # otherwise it takes about a second to process the data at first
 
@@ -22,6 +23,11 @@ path = "src/lib.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.release]
+opt-level = "s"
+
+
 [dependencies]
 csv = "*"
 regex = "*"
+wasm-bindgen = "*"
