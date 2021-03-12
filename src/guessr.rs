@@ -16,12 +16,12 @@ pub struct Guessr {
 
 #[wasm_bindgen]
 impl Guessr {
-    pub fn new(ordered_words_csv: &str, unordered_words: &str, blank_slate: &str) -> Guessr {
+    pub fn new(blank_slate: &str) -> Guessr {
         Guessr {
             words: filter_length(
                 add_ordered(
-                    add_unordered(HashMap::with_capacity(300_000), unordered_words).unwrap(),
-                    ordered_words_csv,
+                    add_unordered(HashMap::with_capacity(300_000), include_str!("../data/words.txt")).unwrap(),
+                    include_str!("../data/ordered_words.csv"),
                 )
                 .unwrap(),
                 blank_slate.len(),

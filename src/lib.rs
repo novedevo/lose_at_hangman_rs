@@ -7,11 +7,7 @@ mod tests {
     fn test() {
         let word = String::from("PINEAPPLE");
 
-        let mut guesser = crate::guessr::Guessr::new(
-            include_str!("../data/ordered_words.csv"),
-            include_str!("../data/words.txt"),
-            &".".repeat(word.len()),
-        );
+        let mut guesser = crate::guessr::Guessr::new(&".".repeat(word.len()));
         let mut executioner = crate::executionr::Executionr::new(String::from(&word));
         while !guesser.already_won() && !executioner.already_lost() {
             let guess = guesser.guess();
