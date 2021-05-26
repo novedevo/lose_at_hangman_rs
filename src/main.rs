@@ -1,36 +1,30 @@
-use std::{env, io, process::exit};
+use std::io;
 
 mod executionr;
 mod guessr;
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
+use clap::Clap;
 
-    match args.get(1) {
-        Some(s) => match s.as_str() {
-            "--interactive" => interact(),
-            "--help" => help(),
-            s => test(s.to_uppercase()),
-        },
-        _ => {
-            eprintln!("Please supply arguments: try --help for more information.");
-            eprintln!("If you're using cargo, `cargo run -- --help' is how you would accomplish this.");
-            exit(-1);
-        }
-    };
+/// A command line interface to help you lose at the wordplay game, hangman.
+/// Run with no arguments for the interactive game.
+#[derive(Clap)]
+#[clap(version = "0.1.0", author = "Devon Burnham <novedevo@gmail.com>")]
+struct Opts {
+    /// Provide a test word, to see if the engine can solve it!
+    #[clap(short, long)]
+    test: Option<String>
 }
 
-fn help() {
-    println!("Guessing game v 0.1.0 help");
-    println!("Use command line flag --help for this dialog [e.g. cargo run -- --help]");
-    println!("Use --interactive to actually play hangman against the bot [e.g. cargo run -- --interactive]");
-    println!(
-        "Test the engine by including your desired word as the first command line argument [e.g. cargo run pineapple]"
-    );
-    exit(0);
+fn main() {
+    let opts = Opts::parse();
+    match opts.test {
+        Some(word) => test(word.to_ascii_uppercase()),
+        None => interact(),
+    }
 }
 
 fn interact() {
+    println!("Let's play hangman! You pick a word, and I'll try to guess it.");
     let mut length = String::new();
     let wrong_guesses = 0;
     println!("Please enter the length of your word in letters, e.g. pineapple is 9 letters long");
