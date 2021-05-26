@@ -1,20 +1,18 @@
 use std::collections::HashMap;
 use std::error::Error;
-use wasm_bindgen::prelude::*;
 
 use regex::Regex;
 
 const ALPHABET: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ-"; //sorted by how common they appear in the scrabble dictionary
+// const initial_map: HashMap<String, f64> = 
 
-#[wasm_bindgen]
 pub struct Guessr {
     words: HashMap<String, f64>,
     guesses: Vec<char>,
     last_regex: regex::Regex,
-    last_guess: Option<char>,
+    pub last_guess: char,
 }
 
-#[wasm_bindgen]
 impl Guessr {
     pub fn new(blank_slate: &str) -> Guessr {
         Guessr {
@@ -28,7 +26,7 @@ impl Guessr {
             ),
             guesses: Vec::new(),
             last_regex: regex::Regex::new(blank_slate).unwrap(),
-            last_guess: None,
+            last_guess: '#',
         }
     }
 
@@ -39,7 +37,7 @@ impl Guessr {
                 max = (letter, prevalence);
             }
         }
-        self.last_guess = Some(max.0);
+        self.last_guess = max.0;
         self.guesses.push(max.0);
         max.0
     }
@@ -48,8 +46,8 @@ impl Guessr {
         let pattern = Regex::new(pattern).unwrap();
         self.words = filter_letter_count(
             self.words.clone(), //feels like an antipattern
-            self.last_guess.unwrap(),
-            pattern.as_str().matches(self.last_guess.unwrap()).count(),
+            self.last_guess,
+            pattern.as_str().matches(self.last_guess).count(),
         );
 
         if pattern.as_str() == self.last_regex.as_str() {
@@ -58,7 +56,7 @@ impl Guessr {
             self.words = filter_regex(self.words.clone(), pattern);
         }
 
-        if self.already_won() {}
+        if self.already_won() {} //what
         self.words.shrink_to_fit(); //conserve memory
     }
 
@@ -66,31 +64,39 @@ impl Guessr {
         self.words.len() == 1
     }
 
-    fn _print_letter_frequencies(&self) {
-        println!("{:?}", get_letter_prevalences(&self.words))
+    pub fn gave_up(&self) -> bool {
+        self.words.is_empty()
     }
 
-    fn _print_wordlist(&self) {
-        println!("{:?}", &self.words);
-    }
+    // fn _print_letter_frequencies(&self) {
+    //     println!("{:?}", get_letter_prevalences(&self.words))
+    // }
 
-    pub fn print_last_guess(&self) {
-        match self.last_guess {
-            None => println!("No guesses have yet been made."),
-            Some(l) => println!("{}", l),
-        }
-    }
+    // fn _print_wordlist(&self) {
+    //     println!("{:?}", &self.words);
+    // }
 
-    //consumes the guesser!
+    // pub fn print_last_guess(&self) {
+    //     match self.last_guess {
+    //         None => println!("No guesses have yet been made."),
+    //         Some(l) => println!("{}", l),
+    //     }
+    // }
+
     pub fn final_answer(self) -> String {
-        let max = 0.0;
+        let mut max = 0.0;
         let mut retval = String::from("No idea :(");
         for key in self.words {
             if key.1 > max {
                 retval = key.0;
+                max = key.1;
             }
         }
         retval
+    }
+
+    pub fn get_remaining(self) -> HashMap<String, f64>{
+        self.words
     }
 }
 
