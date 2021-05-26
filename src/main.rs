@@ -1,7 +1,5 @@
 use std::{env, io, process::exit};
 
-use regex::Regex;
-
 mod executionr;
 mod guessr;
 
@@ -43,12 +41,7 @@ fn interact() {
         .parse()
         .expect("Could not parse your input. Are you sure you entered the right length?");
 
-    let mut guesser = guessr::Guessr::new(
-        include_str!("../data/ordered_words.csv"),
-        include_str!("../data/words.txt"),
-        &".".repeat(length),
-    )
-    .unwrap();
+    let mut guesser = guessr::Guessr::new(&".".repeat(length));
 
     println!("Please enter your strings with '.' reflecting an unguessed position, e.g. pineapple would be .........");
     println!("After the engine guesses E, you would update your string to be ...E....E");
@@ -60,9 +53,7 @@ fn interact() {
         );
         let mut guess = String::new();
         io::stdin().read_line(&mut guess).unwrap();
-        let processed_string = guess.trim().to_uppercase();
-        let new_regex = Regex::new(&processed_string).unwrap();
-        guesser.new_regex(new_regex);
+        guesser.new_regex(&guess.trim().to_uppercase());
     }
     match guesser.already_won() {
         true => println!("Guesser got it! Your word was {}", guesser.final_answer()),
@@ -74,17 +65,12 @@ fn interact() {
 }
 
 fn test(word: String) {
-    let mut guesser = guessr::Guessr::new(
-        include_str!("../data/ordered_words.csv"),
-        include_str!("../data/words.txt"),
-        &".".repeat(word.len()),
-    )
-    .unwrap();
+    let mut guesser = guessr::Guessr::new(&".".repeat(word.len()));
     let mut executioner = executionr::Executionr::new(String::from(&word));
-    while executioner.wrong_guesses <= 6 && !guesser.already_won() && !executioner.already_lost(){
+    while !guesser.already_won() && !executioner.already_lost() {
         let guess = guesser.guess();
         guesser.print_last_guess();
-        guesser.new_regex(executioner.execute(guess));
+        guesser.new_regex(executioner.execute(guess).as_str());
     }
     match guesser.already_won() {
         true => println!("Guesser got it! Your word was {}", word),

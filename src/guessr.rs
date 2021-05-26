@@ -74,7 +74,7 @@ impl Guessr {
         println!("{:?}", &self.words);
     }
 
-    fn _print_last_guess(&self) {
+    pub fn print_last_guess(&self) {
         match self.last_guess {
             None => println!("No guesses have yet been made."),
             Some(l) => println!("{}", l),
