@@ -1,15 +1,13 @@
 use std::collections::HashMap;
 use std::error::Error;
 
-use regex::Regex;
-
 const ALPHABET: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ-"; //sorted by how common they appear in the scrabble dictionary
-// const initial_map: HashMap<String, f64> = 
+                                                      // const initial_map: HashMap<String, f64> =
 
 pub struct Guessr {
     words: HashMap<String, f64>,
     guesses: Vec<char>,
-    last_regex: regex::Regex,
+    last_pattern: String,
     pub last_guess: char,
 }
 
@@ -25,8 +23,8 @@ impl Guessr {
                 blank_slate.len(),
             ),
             guesses: Vec::new(),
-            last_regex: regex::Regex::new(blank_slate).unwrap(),
-            last_guess: '#',
+            last_pattern: String::new(),
+            last_guess: '\0',
         }
     }
 
@@ -43,21 +41,17 @@ impl Guessr {
     }
     pub fn new_regex(&mut self, pattern: &str) {
         //guards against additional characters of the previous guess in the wrong places
-        let pattern = Regex::new(pattern).unwrap();
         self.words = filter_letter_count(
             self.words.clone(), //feels like an antipattern
             self.last_guess,
-            pattern.as_str().matches(self.last_guess).count(),
+            pattern.matches(self.last_guess).count(),
         );
 
-        if pattern.as_str() == self.last_regex.as_str() {
+        if pattern == self.last_pattern {
             //you really shouldn't have to convert them to strings
         } else {
-            self.words = filter_regex(self.words.clone(), pattern);
+            self.words = filter_regex(self.words.clone(), regex::Regex::new(pattern).unwrap());
         }
-
-        if self.already_won() {} //what
-        self.words.shrink_to_fit(); //conserve memory
     }
 
     pub fn already_won(&self) -> bool {
@@ -67,21 +61,6 @@ impl Guessr {
     pub fn gave_up(&self) -> bool {
         self.words.is_empty()
     }
-
-    // fn _print_letter_frequencies(&self) {
-    //     println!("{:?}", get_letter_prevalences(&self.words))
-    // }
-
-    // fn _print_wordlist(&self) {
-    //     println!("{:?}", &self.words);
-    // }
-
-    // pub fn print_last_guess(&self) {
-    //     match self.last_guess {
-    //         None => println!("No guesses have yet been made."),
-    //         Some(l) => println!("{}", l),
-    //     }
-    // }
 
     pub fn final_answer(self) -> String {
         let mut max = 0.0;
@@ -95,7 +74,7 @@ impl Guessr {
         retval
     }
 
-    pub fn get_remaining(self) -> HashMap<String, f64>{
+    pub fn get_remaining(self) -> HashMap<String, f64> {
         self.words
     }
 }
@@ -126,8 +105,6 @@ fn add_ordered(mut words: HashMap<String, f64>, csv_string: &str) -> Result<Hash
 }
 
 fn add_unordered(mut words: HashMap<String, f64>, words_string: &str) -> Result<HashMap<String, f64>, Box<dyn Error>> {
-    //honestly I have no idea what a dyn Error is
-
     for line in words_string.lines() {
         //passes IO errors back to caller
         words.insert(String::from(line), 0.01);
@@ -136,34 +113,17 @@ fn add_unordered(mut words: HashMap<String, f64>, words_string: &str) -> Result<
     Ok(words)
 }
 
-//TODO: refactor these filters once I learn how to use closures
-
 fn filter_length(words: HashMap<String, f64>, length: usize) -> HashMap<String, f64> {
-    let mut filtered_words = HashMap::with_capacity(words.len() / 10);
-    for (word, prevalence) in words {
-        if word.len() == length {
-            filtered_words.insert(word, prevalence);
-        }
-    }
-    filtered_words
+    words.into_iter().filter(|(word, _)| word.len() == length).collect()
 }
 
 fn filter_letter_count(words: HashMap<String, f64>, letter: char, letter_count: usize) -> HashMap<String, f64> {
-    let mut filtered_words = HashMap::with_capacity(words.len());
-    for (word, prevalence) in words {
-        if word.matches(letter).count() == letter_count {
-            filtered_words.insert(word, prevalence);
-        }
-    }
-    filtered_words
+    words
+        .into_iter()
+        .filter(|(word, _)| word.matches(letter).count() == letter_count)
+        .collect()
 }
 
 fn filter_regex(words: HashMap<String, f64>, pattern: regex::Regex) -> HashMap<String, f64> {
-    let mut filtered_words = HashMap::with_capacity(words.len() / 10);
-    for (word, prevalence) in words {
-        if pattern.is_match(&word) {
-            filtered_words.insert(word, prevalence);
-        }
-    }
-    filtered_words
+    words.into_iter().filter(|(word, _)| pattern.is_match(word)).collect()
 }
