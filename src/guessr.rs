@@ -4,8 +4,6 @@ use std::{
     io::{BufWriter, Write},
 };
 
-use serde::{Deserialize, Serialize};
-
 const ALPHABET: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ-"; //sorted by how common they appear in the scrabble dictionary
                                                       // const initial_map: HashMap<String, f64> =
 
@@ -23,11 +21,11 @@ impl Default for Guessr {
 }
 
 impl Guessr {
-    pub fn new() -> Guessr {
+    pub fn _generate_new() -> Self {
         let mut words = HashMap::with_capacity(300_000);
-        add_unordered(&mut words, include_str!("../data/words.txt"));
-        add_ordered(&mut words, include_str!("../data/ordered_words.csv"));
-        Guessr {
+        _add_unordered(&mut words, include_str!("../data/words.txt"));
+        _add_ordered(&mut words, include_str!("../data/ordered_words.csv"));
+        Self {
             words,
             guesses: Vec::new(),
             last_pattern: String::new(),
@@ -35,10 +33,19 @@ impl Guessr {
         }
     }
 
-    pub fn serialize_hash_map(self) {
+    pub fn new() -> Self {
+        Self {
+            words: bincode::deserialize(include_bytes!("../data/serialized_hashmap.bin")).unwrap(),
+            guesses: Vec::new(),
+            last_pattern: String::new(),
+            last_guess: '\0',
+        }
+    }
+
+    pub fn _serialize_hash_map(self) {
         let serialized = bincode::serialize(&self.words).unwrap();
 
-        let file = File::create("../data/serialized_hashmap.bin").expect("failed to create file");
+        let file = File::create("data/serialized_hashmap.bin").expect("failed to create file");
         let mut buf = BufWriter::new(file);
         buf.write_all(&serialized).expect("failed to write to buffer");
         buf.flush().expect("failed to flush buffer")
@@ -115,7 +122,7 @@ fn get_letter_prevalences(words: &HashMap<String, f64>) -> HashMap<char, u32> {
     prevalences
 }
 
-fn add_ordered(words: &mut HashMap<String, f64>, csv_string: &str) {
+fn _add_ordered(words: &mut HashMap<String, f64>, csv_string: &str) {
     let mut rdr = csv::Reader::from_reader(csv_string.as_bytes());
     type Record = (String, f64, u32, f64, f64); //structure of the csv
 
@@ -125,7 +132,7 @@ fn add_ordered(words: &mut HashMap<String, f64>, csv_string: &str) {
     }
 }
 
-fn add_unordered(words: &mut HashMap<String, f64>, words_string: &str) {
+fn _add_unordered(words: &mut HashMap<String, f64>, words_string: &str) {
     for line in words_string.lines() {
         words.insert(String::from(line), 0.01);
     }

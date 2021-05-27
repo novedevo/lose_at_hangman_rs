@@ -20,6 +20,6 @@ mod tests {
     #[test]
     fn serialize() {
         let guesser = crate::guessr::Guessr::new();
-        guesser.serialize_hash_map();
+        guesser._serialize_hash_map();
     }
 }
