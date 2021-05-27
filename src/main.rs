@@ -32,9 +32,10 @@ fn interact() {
     let length: usize = length
         .trim()
         .parse()
-        .expect("Could not parse your input. Are you sure you entered the right length?");
+        .expect("Could not parse your input. Are you sure you entered an integer?");
 
-    let mut guesser = guessr::Guessr::new(&".".repeat(length));
+    let mut guesser = guessr::Guessr::default();
+    guesser.filter_length(length);
 
     println!("Please enter your strings with '.' reflecting an unguessed position, e.g. pineapple would be .........");
     println!("After the engine guesses E, you would update your string to be ...E....E");
@@ -61,7 +62,8 @@ fn interact() {
 }
 
 fn test(word: String) {
-    let mut guesser = guessr::Guessr::new(&".".repeat(word.len()));
+    let mut guesser = guessr::Guessr::default();
+    guesser.filter_length(word.len());
     let mut executioner = executionr::Executionr::new(String::from(&word));
     while !guesser.already_won() && !executioner.already_lost() && !guesser.gave_up() {
         let guess = guesser.guess();
@@ -76,7 +78,7 @@ fn test(word: String) {
             false => {
                 println!(
                     "I failed to guess your word. Consider trying again with a \
-            longer, singular word, or contributing to the project by providing a better dataset."
+                    longer, singular word, or contributing to the project by providing a better dataset."
                 );
                 println!("The remaining words were: {:?}", guesser.get_remaining().keys())
             }

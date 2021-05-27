@@ -1,5 +1,10 @@
-use std::collections::HashMap;
-use std::error::Error;
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::{BufWriter, Write},
+};
+
+use serde::{Deserialize, Serialize};
 
 const ALPHABET: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ-"; //sorted by how common they appear in the scrabble dictionary
                                                       // const initial_map: HashMap<String, f64> =
@@ -11,21 +16,32 @@ pub struct Guessr {
     pub last_guess: char,
 }
 
+impl Default for Guessr {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Guessr {
-    pub fn new(blank_slate: &str) -> Guessr {
+    pub fn new() -> Guessr {
+        let mut words = HashMap::with_capacity(300_000);
+        add_unordered(&mut words, include_str!("../data/words.txt"));
+        add_ordered(&mut words, include_str!("../data/ordered_words.csv"));
         Guessr {
-            words: filter_length(
-                add_ordered(
-                    add_unordered(HashMap::with_capacity(300_000), include_str!("../data/words.txt")).unwrap(),
-                    include_str!("../data/ordered_words.csv"),
-                )
-                .unwrap(),
-                blank_slate.len(),
-            ),
+            words,
             guesses: Vec::new(),
             last_pattern: String::new(),
             last_guess: '\0',
         }
+    }
+
+    pub fn serialize_hash_map(self) {
+        let serialized = bincode::serialize(&self.words).unwrap();
+
+        let file = File::create("../data/serialized_hashmap.bin").expect("failed to create file");
+        let mut buf = BufWriter::new(file);
+        buf.write_all(&serialized).expect("failed to write to buffer");
+        buf.flush().expect("failed to flush buffer")
     }
 
     pub fn guess(&mut self) -> char {
@@ -77,6 +93,15 @@ impl Guessr {
     pub fn get_remaining(self) -> HashMap<String, f64> {
         self.words
     }
+
+    pub fn filter_length(&mut self, length: usize) {
+        self.words = self
+            .words
+            .clone()
+            .into_iter()
+            .filter(|(word, _)| word.len() == length)
+            .collect();
+    }
 }
 
 fn get_letter_prevalences(words: &HashMap<String, f64>) -> HashMap<char, u32> {
@@ -90,31 +115,20 @@ fn get_letter_prevalences(words: &HashMap<String, f64>) -> HashMap<char, u32> {
     prevalences
 }
 
-fn add_ordered(mut words: HashMap<String, f64>, csv_string: &str) -> Result<HashMap<String, f64>, Box<dyn Error>> {
-    //honestly I have no idea what a dyn Error is
-
-    let mut rdr = csv::Reader::from_reader(csv_string.as_bytes()); //passes errors to caller
+fn add_ordered(words: &mut HashMap<String, f64>, csv_string: &str) {
+    let mut rdr = csv::Reader::from_reader(csv_string.as_bytes());
     type Record = (String, f64, u32, f64, f64); //structure of the csv
 
     for result in rdr.deserialize() {
-        let record: Record = result?;
+        let record: Record = result.unwrap();
         words.insert(record.0.to_uppercase(), record.1);
     }
-
-    Ok(words)
 }
 
-fn add_unordered(mut words: HashMap<String, f64>, words_string: &str) -> Result<HashMap<String, f64>, Box<dyn Error>> {
+fn add_unordered(words: &mut HashMap<String, f64>, words_string: &str) {
     for line in words_string.lines() {
-        //passes IO errors back to caller
         words.insert(String::from(line), 0.01);
     }
-
-    Ok(words)
-}
-
-fn filter_length(words: HashMap<String, f64>, length: usize) -> HashMap<String, f64> {
-    words.into_iter().filter(|(word, _)| word.len() == length).collect()
 }
 
 fn filter_letter_count(words: HashMap<String, f64>, letter: char, letter_count: usize) -> HashMap<String, f64> {
