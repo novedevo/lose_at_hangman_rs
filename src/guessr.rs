@@ -1,14 +1,15 @@
 use std::{
-    collections::HashMap,
     fs::File,
     io::{BufWriter, Write},
 };
 
+use rustc_hash::FxHashMap;
+
 const ALPHABET: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ-"; //sorted by how common they appear in the scrabble dictionary
-                                                      // const initial_map: HashMap<String, f64> =
+                                                      // const initial_map: FxHashMap<String, f64> =
 
 pub struct Guessr {
-    words: HashMap<String, f64>,
+    words: FxHashMap<String, f64>,
     guesses: Vec<char>,
     last_pattern: String,
     pub last_guess: char,
@@ -22,7 +23,7 @@ impl Default for Guessr {
 
 impl Guessr {
     pub fn _generate_new() -> Self {
-        let mut words = HashMap::with_capacity(300_000);
+        let mut words = FxHashMap::default();
         _add_unordered(&mut words, include_str!("../data/words.txt"));
         _add_ordered(&mut words, include_str!("../data/ordered_words.csv"));
         Self {
@@ -97,7 +98,7 @@ impl Guessr {
         retval
     }
 
-    pub fn get_remaining(self) -> HashMap<String, f64> {
+    pub fn get_remaining(self) -> FxHashMap<String, f64> {
         self.words
     }
 
@@ -111,8 +112,8 @@ impl Guessr {
     }
 }
 
-fn get_letter_prevalences(words: &HashMap<String, f64>) -> HashMap<char, u32> {
-    let mut prevalences: HashMap<char, u32> = ALPHABET.chars().zip(std::iter::repeat(0)).collect();
+fn get_letter_prevalences(words: &FxHashMap<String, f64>) -> FxHashMap<char, u32> {
+    let mut prevalences: FxHashMap<char, u32> = ALPHABET.chars().zip(std::iter::repeat(0)).collect();
     for word in words.keys() {
         let charset: std::collections::BTreeSet<char> = word.chars().collect();
         for letter in charset {
@@ -122,7 +123,7 @@ fn get_letter_prevalences(words: &HashMap<String, f64>) -> HashMap<char, u32> {
     prevalences
 }
 
-fn _add_ordered(words: &mut HashMap<String, f64>, csv_string: &str) {
+fn _add_ordered(words: &mut FxHashMap<String, f64>, csv_string: &str) {
     let mut rdr = csv::Reader::from_reader(csv_string.as_bytes());
     type Record = (String, f64, u32, f64, f64); //structure of the csv
 
@@ -132,19 +133,19 @@ fn _add_ordered(words: &mut HashMap<String, f64>, csv_string: &str) {
     }
 }
 
-fn _add_unordered(words: &mut HashMap<String, f64>, words_string: &str) {
+fn _add_unordered(words: &mut FxHashMap<String, f64>, words_string: &str) {
     for line in words_string.lines() {
         words.insert(String::from(line), 0.01);
     }
 }
 
-fn filter_letter_count(words: HashMap<String, f64>, letter: char, letter_count: usize) -> HashMap<String, f64> {
+fn filter_letter_count(words: FxHashMap<String, f64>, letter: char, letter_count: usize) -> FxHashMap<String, f64> {
     words
         .into_iter()
         .filter(|(word, _)| word.matches(letter).count() == letter_count)
         .collect()
 }
 
-fn filter_regex(words: HashMap<String, f64>, pattern: regex::Regex) -> HashMap<String, f64> {
+fn filter_regex(words: FxHashMap<String, f64>, pattern: regex::Regex) -> FxHashMap<String, f64> {
     words.into_iter().filter(|(word, _)| pattern.is_match(word)).collect()
 }
