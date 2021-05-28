@@ -1,37 +1,8 @@
-[package]
-name = "lose_at_hangman"
-version = "0.1.0"
-authors = ["Devon Burnham <novedevo@gmail.com>"]
-edition = "2018"
+[workspace]
 
-[lib]
-name = "lose_at_hangman"
-path = "src/lib.rs"
-crate-type = ["cdylib"]
-
-[profile.dev]
-opt-level = 1
-
-# otherwise it takes about a second to process the data at first
-
-[profile.release]
-opt-level = 3
-lto = true
-debug = true
-codegen-units = 1
-panic = "abort"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-# [profile.release]
-# opt-level = "s"
+members = [
+    "hangman_lib",
+    "hangman_cli",
+]
 
 
-[dependencies]
-csv = "*"
-regex = "*"
-# wasm-bindgen = "*"
-clap = "3.0.0-beta.2"
-serde = "*"
-bincode = "*"
-rustc-hash = "*"
