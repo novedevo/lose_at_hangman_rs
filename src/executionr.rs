@@ -10,25 +10,31 @@ impl Executionr {
         Self {
             wrong_guesses: 0,
             guess_limit: 6,
-            current_regex: regex::Regex::new(&".".repeat(word.len())).unwrap(),
+            current_regex: regex::Regex::new(&std::str::from_utf8(&vec![b'.'; word.len()]).unwrap()).unwrap(),
             word,
         }
     }
-    pub fn execute(&mut self, guess: char) -> regex::Regex {
-        if !self.word.contains(guess) {
+    pub fn execute(&mut self, guess: u8) -> regex::Regex {
+        if !self.word.contains(guess as char) {
             self.wrong_guesses += 1;
         } else {
-            let word_as_vector: Vec<char> = self.word.chars().collect();
+            let word_as_vector: Vec<u8> = self.word.bytes().collect();
 
-            let next_regex_string = self.current_regex.as_str().chars().enumerate().map(|(index, letter)| {
-                if *word_as_vector.get(index).unwrap() == guess {
-                    guess
-                } else {
-                    letter
-                }
-            });
+            let next_regex_string = self
+                .current_regex
+                .as_str()
+                .bytes()
+                .enumerate()
+                .map(|(index, letter)| {
+                    if *word_as_vector.get(index).unwrap() == guess {
+                        guess
+                    } else {
+                        letter
+                    }
+                })
+                .collect::<Vec<u8>>();
 
-            self.current_regex = regex::Regex::new(&next_regex_string.collect::<String>()).unwrap();
+            self.current_regex = regex::Regex::new(std::str::from_utf8(&next_regex_string).unwrap()).unwrap();
         }
 
         self.current_regex.clone()
@@ -36,7 +42,7 @@ impl Executionr {
     pub fn _print_bad_guesses(&self) {
         println!("{}", self.wrong_guesses)
     }
-    pub fn already_lost(&self) -> bool{
+    pub fn already_lost(&self) -> bool {
         self.wrong_guesses >= self.guess_limit
     }
 }

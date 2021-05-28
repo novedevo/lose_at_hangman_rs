@@ -10,9 +10,9 @@ const ALPHABET: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ-"; //sorted by how common the
 
 pub struct Guessr {
     words: FxHashMap<String, f64>,
-    guesses: Vec<char>,
+    guesses: Vec<u8>,
     last_pattern: String,
-    pub last_guess: char,
+    pub last_guess: u8,
 }
 
 impl Default for Guessr {
@@ -30,7 +30,7 @@ impl Guessr {
             words,
             guesses: Vec::new(),
             last_pattern: String::new(),
-            last_guess: '\0',
+            last_guess: b'\0',
         }
     }
 
@@ -39,7 +39,7 @@ impl Guessr {
             words: bincode::deserialize(include_bytes!("../data/serialized_hashmap.bin")).unwrap(),
             guesses: Vec::new(),
             last_pattern: String::new(),
-            last_guess: '\0',
+            last_guess: b'\0',
         }
     }
 
@@ -52,15 +52,19 @@ impl Guessr {
         buf.flush().expect("failed to flush buffer")
     }
 
-    pub fn guess(&mut self) -> char {
-        let mut max: (char, u32) = ('#', 0);
-        for (letter, prevalence) in get_letter_prevalences(&self.words) {
+    pub fn guess(&mut self) -> u8 {
+        let mut max = (b'#', 0.0);
+        for (letter, prevalence) in get_letter_frequencies(&self.words) {
             if max.1 < prevalence && !self.guesses.contains(&letter) {
                 max = (letter, prevalence);
             }
         }
         self.last_guess = max.0;
         self.guesses.push(max.0);
+        //DEBUG
+        if self.words.len() <= 20 {
+            println!("{:?}", self.words)
+        }
         max.0
     }
     pub fn new_regex(&mut self, pattern: &str) {
@@ -68,7 +72,7 @@ impl Guessr {
         self.words = filter_letter_count(
             self.words.clone(), //feels like an antipattern
             self.last_guess,
-            pattern.matches(self.last_guess).count(),
+            pattern.matches(self.last_guess as char).count(),
         );
 
         if pattern == self.last_pattern {
@@ -112,15 +116,15 @@ impl Guessr {
     }
 }
 
-fn get_letter_prevalences(words: &FxHashMap<String, f64>) -> FxHashMap<char, u32> {
-    let mut prevalences: FxHashMap<char, u32> = ALPHABET.chars().zip(std::iter::repeat(0)).collect();
-    for word in words.keys() {
-        let charset: std::collections::BTreeSet<char> = word.chars().collect();
+fn get_letter_frequencies(words: &FxHashMap<String, f64>) -> FxHashMap<u8, f64> {
+    let mut frequencies: FxHashMap<u8, f64> = ALPHABET.bytes().zip(std::iter::repeat(0.0)).collect();
+    for (word, prevalence) in words {
+        let charset: std::collections::BTreeSet<u8> = word.bytes().collect();
         for letter in charset {
-            *prevalences.entry(letter).or_default() += 1;
+            *frequencies.entry(letter).or_default() += *prevalence;
         }
     }
-    prevalences
+    frequencies
 }
 
 fn _add_ordered(words: &mut FxHashMap<String, f64>, csv_string: &str) {
@@ -139,10 +143,10 @@ fn _add_unordered(words: &mut FxHashMap<String, f64>, words_string: &str) {
     }
 }
 
-fn filter_letter_count(words: FxHashMap<String, f64>, letter: char, letter_count: usize) -> FxHashMap<String, f64> {
+fn filter_letter_count(words: FxHashMap<String, f64>, letter: u8, letter_count: usize) -> FxHashMap<String, f64> {
     words
         .into_iter()
-        .filter(|(word, _)| word.matches(letter).count() == letter_count)
+        .filter(|(word, _)| word.matches(letter as char).count() == letter_count)
         .collect()
 }
 

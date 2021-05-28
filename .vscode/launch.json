@@ -20,7 +20,8 @@
                 }
             },
             "args": [
-                "--interactive"
+                "--test",
+                "cats"
             ],
             // "args": ["pineapple"],
             "cwd": "${workspaceFolder}"
