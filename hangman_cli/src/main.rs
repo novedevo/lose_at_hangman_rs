@@ -1,7 +1,6 @@
 use std::io;
 
-mod executionr;
-mod guessr;
+use hangman_lib::*;
 
 use clap::Clap;
 

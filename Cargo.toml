@@ -5,4 +5,13 @@ members = [
     "hangman_cli",
 ]
 
+[profile.dev]
+opt-level = 1
+# otherwise it takes about a second to process the data at first
 
+[profile.release]
+opt-level = 3
+lto = true
+debug = true
+codegen-units = 1
+# panic = "abort"

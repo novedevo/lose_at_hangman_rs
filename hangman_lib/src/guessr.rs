@@ -35,7 +35,7 @@ impl Guessr {
 
     pub fn new() -> Self {
         Self {
-            words: bincode::deserialize(include_bytes!("../data/serialized_hashmap.bin")).unwrap(),
+            words: bincode::deserialize(include_bytes!("../../data/serialized_hashmap.bin")).unwrap(),
             guesses: Vec::new(),
             last_pattern: String::new(),
             last_guess: b'\0',
