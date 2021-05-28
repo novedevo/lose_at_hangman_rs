@@ -6,7 +6,6 @@ use std::{
 use rustc_hash::FxHashMap;
 
 const ALPHABET: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ-"; //sorted by how common they appear in the scrabble dictionary
-                                                      // const initial_map: FxHashMap<String, f64> =
 
 pub struct Guessr {
     words: FxHashMap<String, f64>,
@@ -22,17 +21,17 @@ impl Default for Guessr {
 }
 
 impl Guessr {
-    pub fn _generate_new() -> Self {
-        let mut words = FxHashMap::default();
-        _add_unordered(&mut words, include_str!("../data/words.txt"));
-        _add_ordered(&mut words, include_str!("../data/ordered_words.csv"));
-        Self {
-            words,
-            guesses: Vec::new(),
-            last_pattern: String::new(),
-            last_guess: b'\0',
-        }
-    }
+    // pub fn _generate_new() -> Self {
+    //     let mut words = FxHashMap::default();
+    //     _add_unordered(&mut words, include_str!("../data/words.txt"));
+    //     _add_ordered(&mut words, include_str!("../data/ordered_words.csv"));
+    //     Self {
+    //         words,
+    //         guesses: Vec::new(),
+    //         last_pattern: String::new(),
+    //         last_guess: b'\0',
+    //     }
+    // }
 
     pub fn new() -> Self {
         Self {
@@ -54,9 +53,9 @@ impl Guessr {
 
     pub fn guess(&mut self) -> u8 {
         let mut max = (b'#', 0.0);
-        for (letter, prevalence) in get_letter_frequencies(&self.words) {
-            if max.1 < prevalence && !self.guesses.contains(&letter) {
-                max = (letter, prevalence);
+        for (letter, frequency) in get_letter_frequencies(&self.words) {
+            if max.1 < frequency && !self.guesses.contains(&letter) {
+                max = (letter, frequency);
             }
         }
         self.last_guess = max.0;
