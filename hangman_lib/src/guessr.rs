@@ -51,6 +51,10 @@ impl Guessr {
         buf.flush().expect("failed to flush buffer")
     }
 
+    pub fn already_guessed(&mut self, guesses: &[u8]) {
+        self.guesses.extend_from_slice(guesses);
+    }
+
     pub fn guess(&mut self) -> u8 {
         let mut max = (b'#', 0.0);
         for (letter, frequency) in get_letter_frequencies(&self.words) {

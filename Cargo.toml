@@ -3,6 +3,7 @@
 members = [
     "hangman_lib",
     "hangman_cli",
+    "hangman_server",
 ]
 
 [profile.dev]

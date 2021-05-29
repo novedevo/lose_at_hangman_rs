@@ -7,22 +7,22 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'lose_at_hangman'",
+            "name": "Debug executable 'hangman_server'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=lose_at_hangman",
-                    "--package=lose_at_hangman"
+                    "--bin=hangman_server",
+                    "--package=hangman_server"
                 ],
                 "filter": {
-                    "name": "lose_at_hangman",
+                    "name": "hangman_server",
                     "kind": "bin"
                 }
             },
-            "args": [
-                "--test",
-                "cats"
-            ],
+            // "args": [
+            //     "--test",
+            //     "cats"
+            // ],
             // "args": ["pineapple"],
             "cwd": "${workspaceFolder}"
         },
