@@ -68,7 +68,6 @@ impl Guessr {
     }
 
     pub fn new_regex(&mut self, pattern: &str) {
-
         if pattern != self.last_pattern {
             self.words = filter_regex(self.words.clone(), regex::Regex::new(&pattern).unwrap());
         }
@@ -80,6 +79,16 @@ impl Guessr {
 
     pub fn gave_up(&self) -> bool {
         self.words.is_empty()
+    }
+
+    pub fn final_guess(&mut self) -> String {
+        if self.words.is_empty() {
+            String::from("I don't know your word. Are you sure you're using scrabble rules?")
+        } else if self.words.len() == 1 {
+            self.words[0].0.clone()
+        } else {
+            (self.guess() as char).to_string()
+        }
     }
 
     pub fn final_answer(self) -> String {

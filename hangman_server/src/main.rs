@@ -5,8 +5,8 @@ extern crate rocket;
 
 use hangman_lib::*;
 
-#[get("/<pattern>?<guesses>")]
-fn index(pattern: String, guesses: Option<String>) -> String {
+#[get("/hangman/api?<pattern>&<guesses>")]
+fn api(pattern: String, guesses: Option<String>) -> String {
     let pattern = pattern.to_ascii_uppercase();
     let mut guesser = guessr::Guessr::default();
     guesser.filter_length(pattern.len());
@@ -18,18 +18,15 @@ fn index(pattern: String, guesses: Option<String>) -> String {
         pattern
     };
 
-    // let stripped_pattern = pattern.to_ascii_uppercase().replace('.', "");
-
-    // let pattern = if charset.is_empty() {
-    //     pattern.to_string()
-    // } else {
-    //     pattern.replace('.', &format!("[^{}]", charset)).replace('-', r"\-")
-    // };
-
     guesser.new_regex(&format!("^{}$", pattern));
-    format!("{}", guesser.guess())
+    guesser.final_guess()
+}
+
+#[get("/hangman")]
+fn hangman() -> String {
+    String::from("nothing here lol")
 }
 
 fn main() {
-    rocket::ignite().mount("/", routes![index]).launch();
+    rocket::ignite().mount("/", routes![api, hangman]).launch();
 }
