@@ -9,7 +9,20 @@
     <title>Lose at Hangman</title>
 
     <style>
-        
+        #playarea {
+            display: flex;
+
+        }
+
+        #playarea>button {
+            font-size: 20px;
+            background-color: aliceblue;
+            /* color: white; */
+            border: 2px solid cornflowerblue;
+            border-radius: 8px;
+            padding: 2px;
+            margin: 2px;
+        }
     </style>
 </head>
 
@@ -17,13 +30,19 @@
 
     <div class="content">
         <h1>Lose at Hangman</h1>
-        <main>
-            <label>How many letters is your word?</label>
+        <main id="gameboard">
+            <label id="letterQuery">How many letters is your word?</label>
             <input type="number" id="num_letters"></input>
-            <button type="button" onclick="updateValue()">Submit</button>
+            <button type="button" onclick="updateValue()" id="submit">Submit</button>
             <div id="playarea">
-
+                <button id="letterbox0" onclick="setButton(0)"> </button>
+                <button id="letterbox1" onclick="setButton(1)"> </button>
+                <button id="letterbox2" onclick="setButton(2)"> </button>
+                <button id="letterbox3" onclick="setButton(3)"> </button>
             </div>
+            <p id=lastguess>No guesses yet</p>
+            <button type="button" onclick="getNewGuess()">Give me a guess!</button>
+            <button type="button" onclick="reset()">Reset to defaults</button>
         </main>
     </div>
 
@@ -36,27 +55,56 @@
 
     // numLettersInput.addEventListener("input", updateValue);
 
+    let currentLetter = " ";
+
     function updateValue() {
-        
+
         console.log("clicked")
         let element = document.getElementById("playarea");
 
-        if (numLettersInput.valueAsNumber < 0) {
-            let p = document.createElement("p");
-            p.innerText = "please do not submit negative numbers. my code is fragile and so am i";
-            element.appendChild(p);
-            return;
-        }
+        console.log(numLettersInput.valueAsNumber);
 
         while (element.hasChildNodes()) {
             element.removeChild(element.lastChild);
         }
 
-        for (let i = 0; i < numLettersInput.valueAsNumber; i++) {
-            let div = document.createElement("div");
-            div.id = "letterbox" + i;
-            element.appendChild(div);
+        if (isNaN(numLettersInput.valueAsNumber) || numLettersInput.valueAsNumber < 1) {
+            let p = document.createElement("p");
+            p.innerText = "please only submit positive numbers. my code is fragile and so am i";
+            element.appendChild(p);
+            return;
         }
-        console.log("divs created");
+
+        for (let i = 0; i < numLettersInput.valueAsNumber; i++) {
+            let button = document.createElement("button");
+            button.id = "letterbox" + i;
+            button.innerText = " ";
+            button.setAttribute("onclick", "setButton(" + i + ")");
+            // button.onclick = "setButton(" + i + ")";
+            element.appendChild(button);
+        }
+
+        let main = document.getElementById("gameboard");
+        main.removeChild(document.getElementById("letterQuery"));
+        main.removeChild(document.getElementById("num_letters"));
+        main.removeChild(document.getElementById("submit"));
+
+        console.log("buttons created");
+    }
+    function setButton(i) {
+        const button = document.getElementById("letterbox" + i);
+        if (button.innerText === " ") {
+            button.innerText = currentLetter;
+        } else if (button.innerText === currentLetter) {
+            button.innerText = " ";
+        }
+    }
+    function getNewGuess() {
+        let guessContainer = document.getElementById("lastguess");
+        currentLetter = "E";
+        guessContainer.innerText = currentLetter;
+    }
+    function reset() {
+
     }
 </script>
