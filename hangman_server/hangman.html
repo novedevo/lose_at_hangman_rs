@@ -31,13 +31,7 @@
 
     <div class="content">
         <h1>Lose at Hangman</h1>
-        <main id="gameboard">
-            <label id="letterQuery">How many letters is your word?</label>
-            <input type="number" id="num_letters"></input>
-            <button type="button" onclick="updateValue()" id="submit">Submit</button>
-            <div id="playarea"></div>
-            
-        </main>
+        <main id="gameboard"></main>
     </div>
 
 </body>
@@ -45,17 +39,19 @@
 </html>
 
 <script defer>
-    const numLettersInput = document.querySelector('input');
-
-    // numLettersInput.addEventListener("input", updateValue);
+    
+    reset();
 
     let currentLetter = " ";
     let pattern = "";
+
 
     function updateValue() {
 
         console.log("clicked")
         let element = document.getElementById("playarea");
+
+        const numLettersInput = document.querySelector('input');
 
         console.log(numLettersInput.valueAsNumber);
 
@@ -120,6 +116,29 @@
         console.log(pattern);
     }
     function reset() {
+        let board = document.getElementById("gameboard");
 
+        let letterQuery = document.createElement("label");
+        letterQuery.id = "letterQuery";
+        letterQuery.innerText = "How many letters is your word?";
+        let input = document.createElement("input");
+        input.type = "number";
+        input.id = "num_letters";
+        let submitButton = document.createElement("button");
+        submitButton.type = "button";
+        submitButton.id = "submit";
+        submitButton.setAttribute("onclick", "updateValue()");
+        submitButton.innerText = "Submit";
+        let playArea = document.createElement("div");
+        playArea.id = "playarea";
+
+        while (board.hasChildNodes()) {
+            board.removeChild(board.lastChild);
+        }
+
+        board.appendChild(letterQuery);
+        board.appendChild(input);
+        board.appendChild(submitButton);
+        board.appendChild(playArea);
     }
 </script>
