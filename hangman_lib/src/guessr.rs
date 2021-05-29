@@ -5,10 +5,10 @@ use std::{
 
 use rustc_hash::FxHashMap;
 
-const ALPHABET: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ-"; //sorted by how common they appear in the scrabble dictionary
+// const ALPHABET: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ"; //-"; //sorted by how common they appear in the scrabble dictionary
 
 pub struct Guessr {
-    words: FxHashMap<String, f64>,
+    words: Vec<(String, f64)>,
     guesses: Vec<u8>,
     last_pattern: String,
     pub last_guess: u8,
@@ -21,31 +21,31 @@ impl Default for Guessr {
 }
 
 impl Guessr {
-    // pub fn _generate_new() -> Self {
-    //     let mut words = FxHashMap::default();
-    //     _add_unordered(&mut words, include_str!("../data/words.txt"));
-    //     _add_ordered(&mut words, include_str!("../data/ordered_words.csv"));
-    //     Self {
-    //         words,
-    //         guesses: Vec::new(),
-    //         last_pattern: String::new(),
-    //         last_guess: b'\0',
-    //     }
-    // }
-
-    pub fn new() -> Self {
+    pub fn _generate_new() -> Self {
+        let mut words = FxHashMap::default();
+        _add_unordered(&mut words, include_str!("../../data/words.txt"));
+        _add_ordered(&mut words, include_str!("../../data/ordered_words.csv"));
         Self {
-            words: bincode::deserialize(include_bytes!("../../data/serialized_hashmap.bin")).unwrap(),
+            words: words.into_iter().collect(),
             guesses: Vec::new(),
             last_pattern: String::new(),
             last_guess: b'\0',
         }
     }
 
-    pub fn _serialize_hash_map(self) {
+    pub fn new() -> Self {
+        Self {
+            words: bincode::deserialize(include_bytes!("../../data/serialized_wordvec.bin")).unwrap(),
+            guesses: Vec::new(),
+            last_pattern: String::new(),
+            last_guess: b'\0',
+        }
+    }
+
+    pub fn _serialize_words(self) {
         let serialized = bincode::serialize(&self.words).unwrap();
 
-        let file = File::create("data/serialized_hashmap.bin").expect("failed to create file");
+        let file = File::create("../data/serialized_wordvec.bin").expect("failed to create file");
         let mut buf = BufWriter::new(file);
         buf.write_all(&serialized).expect("failed to write to buffer");
         buf.flush().expect("failed to flush buffer")
@@ -57,9 +57,9 @@ impl Guessr {
 
     pub fn guess(&mut self) -> u8 {
         let mut max = (b'#', 0.0);
-        for (letter, frequency) in get_letter_frequencies(&self.words) {
-            if max.1 < frequency && !self.guesses.contains(&letter) {
-                max = (letter, frequency);
+        for (letter, frequency) in get_letter_frequencies(&self.words).iter().enumerate() {
+            if max.1 < *frequency && !self.guesses.contains(&(letter as u8 + 65)) {
+                max = (letter as u8 + 65, *frequency);
             }
         }
         self.last_guess = max.0;
@@ -70,18 +70,16 @@ impl Guessr {
         }
         max.0
     }
-    pub fn new_regex(&mut self, pattern: &str) {
-        //guards against additional characters of the previous guess in the wrong places
-        self.words = filter_letter_count(
-            self.words.clone(), //feels like an antipattern
-            self.last_guess,
-            pattern.matches(self.last_guess as char).count(),
-        );
 
-        if pattern == self.last_pattern {
-            //you really shouldn't have to convert them to strings
-        } else {
-            self.words = filter_regex(self.words.clone(), regex::Regex::new(pattern).unwrap());
+    pub fn new_regex(&mut self, pattern: &str) {
+        let stripped_pattern = pattern.replace('.', "");
+        let charset: std::collections::BTreeSet<u8> = stripped_pattern.bytes().collect();
+        let charset = String::from_utf8(charset.into_iter().collect::<Vec<u8>>()).unwrap();
+
+        let pattern = pattern.replace('.', &format!("[^{}]", charset)).replace('-', "\\-");
+
+        if pattern != self.last_pattern {
+            self.words = filter_regex(self.words.clone(), regex::Regex::new(&pattern).unwrap());
         }
     }
 
@@ -105,7 +103,7 @@ impl Guessr {
         retval
     }
 
-    pub fn get_remaining(self) -> FxHashMap<String, f64> {
+    pub fn get_remaining(self) -> Vec<(String, f64)> {
         self.words
     }
 
@@ -119,12 +117,12 @@ impl Guessr {
     }
 }
 
-fn get_letter_frequencies(words: &FxHashMap<String, f64>) -> FxHashMap<u8, f64> {
-    let mut frequencies: FxHashMap<u8, f64> = ALPHABET.bytes().zip(std::iter::repeat(0.0)).collect();
+fn get_letter_frequencies(words: &[(String, f64)]) -> [f64; 26] {
+    let mut frequencies = [0.0; 26];
     for (word, prevalence) in words {
         let charset: std::collections::BTreeSet<u8> = word.bytes().collect();
         for letter in charset {
-            *frequencies.entry(letter).or_default() += *prevalence;
+            frequencies[letter as usize - 65] += *prevalence;
         }
     }
     frequencies
@@ -146,13 +144,6 @@ fn _add_unordered(words: &mut FxHashMap<String, f64>, words_string: &str) {
     }
 }
 
-fn filter_letter_count(words: FxHashMap<String, f64>, letter: u8, letter_count: usize) -> FxHashMap<String, f64> {
-    words
-        .into_iter()
-        .filter(|(word, _)| word.matches(letter as char).count() == letter_count)
-        .collect()
-}
-
-fn filter_regex(words: FxHashMap<String, f64>, pattern: regex::Regex) -> FxHashMap<String, f64> {
+fn filter_regex(words: Vec<(String, f64)>, pattern: regex::Regex) -> Vec<(String, f64)> {
     words.into_iter().filter(|(word, _)| pattern.is_match(word)).collect()
 }

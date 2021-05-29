@@ -55,7 +55,7 @@ fn interact() {
                 "I failed to guess your word. Consider trying again with a \
             longer, singular word, or contributing to the project by providing a better dataset."
             );
-            println!("The remaining words were: {:?}", guesser.get_remaining().keys())
+            println!("The remaining words were: {:?}", guesser.get_remaining())
         }
     }
 }
@@ -79,7 +79,7 @@ fn test(word: String) {
                     "I failed to guess your word. Consider trying again with a \
                     longer, singular word, or contributing to the project by providing a better dataset."
                 );
-                println!("The remaining words were: {:?}", guesser.get_remaining().keys())
+                println!("The remaining words were: {:?}", guesser.get_remaining())
             }
         }
     }
