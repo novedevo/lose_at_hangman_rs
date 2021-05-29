@@ -11,7 +11,6 @@ pub struct Guessr {
     words: Vec<(String, f64)>,
     guesses: Vec<u8>,
     last_pattern: String,
-    pub last_guess: u8,
 }
 
 impl Default for Guessr {
@@ -29,7 +28,6 @@ impl Guessr {
             words: words.into_iter().collect(),
             guesses: Vec::new(),
             last_pattern: String::new(),
-            last_guess: b'\0',
         }
     }
 
@@ -38,7 +36,6 @@ impl Guessr {
             words: bincode::deserialize(include_bytes!("../../data/serialized_wordvec.bin")).unwrap(),
             guesses: Vec::new(),
             last_pattern: String::new(),
-            last_guess: b'\0',
         }
     }
 
@@ -62,7 +59,6 @@ impl Guessr {
                 max = (letter as u8 + 65, *frequency);
             }
         }
-        self.last_guess = max.0;
         self.guesses.push(max.0);
         //DEBUG
         if self.words.len() <= 20 {
@@ -72,11 +68,6 @@ impl Guessr {
     }
 
     pub fn new_regex(&mut self, pattern: &str) {
-        let stripped_pattern = pattern.replace('.', "");
-        let charset: std::collections::BTreeSet<u8> = stripped_pattern.bytes().collect();
-        let charset = String::from_utf8(charset.into_iter().collect::<Vec<u8>>()).unwrap();
-
-        let pattern = pattern.replace('.', &format!("[^{}]", charset)).replace('-', "\\-");
 
         if pattern != self.last_pattern {
             self.words = filter_regex(self.words.clone(), regex::Regex::new(&pattern).unwrap());

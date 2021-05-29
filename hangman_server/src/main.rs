@@ -7,14 +7,27 @@ use hangman_lib::*;
 
 #[get("/<pattern>?<guesses>")]
 fn index(pattern: String, guesses: Option<String>) -> String {
+    let pattern = pattern.to_ascii_uppercase();
     let mut guesser = guessr::Guessr::default();
     guesser.filter_length(pattern.len());
-    if let Some(guesses) = guesses {
-        guesser.already_guessed(guesses.to_ascii_uppercase().as_bytes());
-    }
+    let pattern = if let Some(guesses) = guesses {
+        let guesses = guesses.to_ascii_uppercase();
+        guesser.already_guessed(guesses.as_bytes());
+        pattern.replace('.', &format!("[^{}]", guesses))
+    } else {
+        pattern
+    };
 
-    guesser.new_regex(&pattern);
-    format!("{}", guesser.guess() as char)
+    // let stripped_pattern = pattern.to_ascii_uppercase().replace('.', "");
+
+    // let pattern = if charset.is_empty() {
+    //     pattern.to_string()
+    // } else {
+    //     pattern.replace('.', &format!("[^{}]", charset)).replace('-', r"\-")
+    // };
+
+    guesser.new_regex(&format!("^{}$", pattern));
+    format!("{}", guesser.guess())
 }
 
 fn main() {
