@@ -24,6 +24,12 @@
             margin: 2px;
             min-width: 1rem;
         }
+        #playarea button:hover{
+            background-color:lightblue;
+        }
+        #playarea button:active {
+            background-color:mediumslateblue;
+        }
     </style>
 </head>
 
@@ -119,23 +125,21 @@
     function getNewGuess() {
         let guessContainer = document.getElementById("lastGuess");
         console.log(pattern);
-        fetch("hangman/api?pattern=" + pattern.join("") + "&guesses=" + guesses.join("")).then((response) =>
-            response.text().then((text) => {
+        fetch("hangman/api?pattern=" + pattern.join("") + "&guesses=" + guesses.join(""))
+            .then((response) => response.text())
+            .then((text) => {
                 if (text.length === 1) {
                     currentLetter = text;
                     guesses.push(currentLetter);
                     console.log(currentLetter);
-                    // currentLetter = "E";6
                     guessContainer.innerText = currentLetter;
                 } else {
                     guessContainer.innerText = text;
                     document.getElementById("guessButton").remove();
                     currentLetter = " ";
                 }
-
             }
-            )
-        );
+            );
     }
     function reset() {
         let board = document.getElementById("gameboard");
