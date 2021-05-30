@@ -7,10 +7,12 @@ use hangman_lib::*;
 use rocket::response::NamedFile;
 use std::path::Path;
 
+static mut MAIN_GUESSER: guessr::Guessr = guessr::Guessr::const_default();
+
 #[get("/hangman/api?<pattern>&<guesses>")]
 fn api(pattern: String, guesses: Option<String>) -> String {
     let pattern = pattern.to_ascii_uppercase();
-    let mut guesser = guessr::Guessr::default();
+    let mut guesser = unsafe { MAIN_GUESSER.clone() };
     guesser.filter_length(pattern.len());
     let pattern = if let Some(guesses) = guesses {
         if !guesses.is_empty() {
@@ -30,12 +32,12 @@ fn api(pattern: String, guesses: Option<String>) -> String {
 
 #[get("/hangman")]
 fn hangman() -> NamedFile {
-    NamedFile::open(Path::new(
-        "hangman_server/hangman.html",
-    ))
-    .unwrap()
+    NamedFile::open(Path::new("hangman_server/hangman.html")).unwrap()
 }
 
 fn main() {
+    unsafe {
+        MAIN_GUESSER = guessr::Guessr::new();
+    }
     rocket::ignite().mount("/", routes![api, hangman]).launch();
 }

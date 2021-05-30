@@ -16,10 +16,4 @@ mod tests {
         }
         assert_eq!(word, guesser.final_answer());
     }
-
-    #[test]
-    fn serialize() {
-        let guesser = crate::guessr::Guessr::_generate_new();
-        guesser._serialize_words();
-    }
 }

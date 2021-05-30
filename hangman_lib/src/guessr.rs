@@ -1,12 +1,5 @@
-use std::{
-    fs::File,
-    io::{BufWriter, Write},
-};
 
-use rustc_hash::FxHashMap;
-
-// const ALPHABET: &str = "ESIARNOTLCDUPMGHBYFKVWZXQJ"; //-"; //sorted by how common they appear in the scrabble dictionary
-
+#[derive(Clone)]
 pub struct Guessr {
     words: Vec<(String, f64)>,
     guesses: Vec<u8>,
@@ -20,13 +13,10 @@ impl Default for Guessr {
 }
 
 impl Guessr {
-    pub fn _generate_new() -> Self {
-        let mut words = FxHashMap::default();
-        _add_unordered(&mut words, include_str!("../../data/words.txt"));
-        _add_ordered(&mut words, include_str!("../../data/ordered_words.csv"));
+    pub const fn const_default() -> Self {
         Self {
-            words: words.into_iter().collect(),
-            guesses: Vec::new(),
+            words: vec![],
+            guesses: vec![],
             last_pattern: String::new(),
         }
     }
@@ -37,15 +27,6 @@ impl Guessr {
             guesses: Vec::new(),
             last_pattern: String::new(),
         }
-    }
-
-    pub fn _serialize_words(self) {
-        let serialized = bincode::serialize(&self.words).unwrap();
-
-        let file = File::create("../data/serialized_wordvec.bin").expect("failed to create file");
-        let mut buf = BufWriter::new(file);
-        buf.write_all(&serialized).expect("failed to write to buffer");
-        buf.flush().expect("failed to flush buffer")
     }
 
     pub fn already_guessed(&mut self, guesses: &[u8]) {
@@ -60,10 +41,6 @@ impl Guessr {
             }
         }
         self.guesses.push(max.0);
-        //DEBUG
-        if self.words.len() <= 20 {
-            println!("{:?}", self.words)
-        }
         max.0
     }
 
@@ -126,22 +103,6 @@ fn get_letter_frequencies(words: &[(String, f64)]) -> [f64; 26] {
         }
     }
     frequencies
-}
-
-fn _add_ordered(words: &mut FxHashMap<String, f64>, csv_string: &str) {
-    let mut rdr = csv::Reader::from_reader(csv_string.as_bytes());
-    type Record = (String, f64, u32, f64, f64); //structure of the csv
-
-    for result in rdr.deserialize() {
-        let record: Record = result.unwrap();
-        words.insert(record.0.to_uppercase(), record.1);
-    }
-}
-
-fn _add_unordered(words: &mut FxHashMap<String, f64>, words_string: &str) {
-    for line in words_string.lines() {
-        words.insert(String::from(line), 0.01);
-    }
 }
 
 fn filter_regex(words: Vec<(String, f64)>, pattern: regex::Regex) -> Vec<(String, f64)> {

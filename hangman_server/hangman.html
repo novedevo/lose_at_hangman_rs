@@ -53,13 +53,9 @@
     reset();
 
     function updateValue() {
-
-        console.log("clicked")
         const element = document.getElementById("playarea");
-
         const numLettersInput = document.querySelector('input');
-
-        console.log(numLettersInput.valueAsNumber);
+        pattern = [];
 
         while (element.hasChildNodes()) {
             element.removeChild(element.lastChild);
@@ -71,8 +67,6 @@
             element.appendChild(p);
             return;
         }
-
-        pattern = [];
 
         for (let i = 0; i < numLettersInput.valueAsNumber; i++) {
             let button = document.createElement("button");
