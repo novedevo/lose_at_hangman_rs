@@ -88,11 +88,13 @@
         guessContainer.id = "lastGuess";
         guessContainer.innerText = "No guesses yet";
         let guessButton = document.createElement("button");
-        guessButton.type = "button"
+        guessButton.type = "button";
+        guessButton.id = "guessButton";
         guessButton.setAttribute("onclick", "getNewGuess()");
         guessButton.innerText = "Give me a guess!";
         let resetButton = document.createElement("button");
-        resetButton.type = "button"
+        resetButton.type = "button";
+        resetButton.id = "resetButton";
         resetButton.setAttribute("onclick", "reset()");
         resetButton.innerText = "Reset to defaults";
 
@@ -106,7 +108,9 @@
         const button = document.getElementById("letterbox" + i);
         if (button.innerText === " ") {
             button.innerText = currentLetter;
-            pattern[i] = currentLetter;
+            if (currentLetter !== " ") {
+                pattern[i] = currentLetter;
+            }
         } else if (button.innerText === currentLetter) {
             button.innerText = " ";
             pattern[i] = ".";
@@ -117,11 +121,18 @@
         console.log(pattern);
         fetch("hangman/api?pattern=" + pattern.join("") + "&guesses=" + guesses.join("")).then((response) =>
             response.text().then((text) => {
-                currentLetter = text;
-                guesses.push(currentLetter);
-                console.log(currentLetter);
-                // currentLetter = "E";6
-                guessContainer.innerText = currentLetter;
+                if (text.length === 1) {
+                    currentLetter = text;
+                    guesses.push(currentLetter);
+                    console.log(currentLetter);
+                    // currentLetter = "E";6
+                    guessContainer.innerText = currentLetter;
+                } else {
+                    guessContainer.innerText = text;
+                    document.getElementById("guessButton").remove();
+                    currentLetter = " ";
+                }
+
             }
             )
         );
