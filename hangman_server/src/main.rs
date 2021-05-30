@@ -9,7 +9,7 @@ use std::path::Path;
 
 static mut MAIN_GUESSER: guessr::Guessr = guessr::Guessr::const_default();
 
-#[get("/hangman/api?<pattern>&<guesses>")]
+#[get("/api?<pattern>&<guesses>")]
 fn api(pattern: String, guesses: Option<String>) -> String {
     let pattern = pattern.to_ascii_uppercase();
     let mut guesser = unsafe { MAIN_GUESSER.clone() };
@@ -30,7 +30,7 @@ fn api(pattern: String, guesses: Option<String>) -> String {
     guesser.final_guess()
 }
 
-#[get("/hangman")]
+#[get("/")]
 fn hangman() -> NamedFile {
     NamedFile::open(Path::new("hangman_server/hangman.html")).unwrap()
 }
