@@ -28,28 +28,29 @@
 </head>
 
 <body>
-
     <div class="content">
         <h1>Lose at Hangman</h1>
+        <noscript>Please enable JavaScript on this page; nothing works without it, and I promise not to be evil :)<br>
+            You can view the full script with inspect element, it's all inline.</noscript>
         <main id="gameboard"></main>
     </div>
-
 </body>
 
 </html>
 
 <script defer>
-    
+    let currentLetter = " ";
+    let pattern = [];
+    let guesses = [];
     reset();
 
-    let currentLetter = " ";
-    let pattern = "";
+
 
 
     function updateValue() {
 
         console.log("clicked")
-        let element = document.getElementById("playarea");
+        const element = document.getElementById("playarea");
 
         const numLettersInput = document.querySelector('input');
 
@@ -66,7 +67,7 @@
             return;
         }
 
-        pattern = "";
+        pattern = [];
 
         for (let i = 0; i < numLettersInput.valueAsNumber; i++) {
             let button = document.createElement("button");
@@ -75,7 +76,7 @@
             button.setAttribute("onclick", "setButton(" + i + ")");
             // button.onclick = "setButton(" + i + ")";
             element.appendChild(button);
-            pattern += ".";
+            pattern.push(".");
         }
 
         let main = document.getElementById("gameboard");
@@ -105,15 +106,25 @@
         const button = document.getElementById("letterbox" + i);
         if (button.innerText === " ") {
             button.innerText = currentLetter;
+            pattern[i] = currentLetter;
         } else if (button.innerText === currentLetter) {
             button.innerText = " ";
+            pattern[i] = ".";
         }
     }
     function getNewGuess() {
         let guessContainer = document.getElementById("lastGuess");
-        currentLetter = "E";
-        guessContainer.innerText = currentLetter;
         console.log(pattern);
+        fetch("hangman/api?pattern=" + pattern.join("") + "&guesses=" + guesses.join("")).then((response) =>
+            response.text().then((text) => {
+                currentLetter = text;
+                guesses.push(currentLetter);
+                console.log(currentLetter);
+                // currentLetter = "E";6
+                guessContainer.innerText = currentLetter;
+            }
+            )
+        );
     }
     function reset() {
         let board = document.getElementById("gameboard");
@@ -140,5 +151,9 @@
         board.appendChild(input);
         board.appendChild(submitButton);
         board.appendChild(playArea);
+
+        currentLetter = " ";
+        pattern = [];
+        guesses = [];
     }
 </script>

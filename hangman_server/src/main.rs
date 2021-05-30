@@ -4,6 +4,8 @@
 extern crate rocket;
 
 use hangman_lib::*;
+use rocket::response::NamedFile;
+use std::path::Path;
 
 #[get("/hangman/api?<pattern>&<guesses>")]
 fn api(pattern: String, guesses: Option<String>) -> String {
@@ -11,9 +13,13 @@ fn api(pattern: String, guesses: Option<String>) -> String {
     let mut guesser = guessr::Guessr::default();
     guesser.filter_length(pattern.len());
     let pattern = if let Some(guesses) = guesses {
-        let guesses = guesses.to_ascii_uppercase();
-        guesser.already_guessed(guesses.as_bytes());
-        pattern.replace('.', &format!("[^{}]", guesses))
+        if !guesses.is_empty() {
+            let guesses = guesses.to_ascii_uppercase();
+            guesser.already_guessed(guesses.as_bytes());
+            pattern.replace('.', &format!("[^{}]", guesses))
+        } else {
+            pattern
+        }
     } else {
         pattern
     };
@@ -23,8 +29,11 @@ fn api(pattern: String, guesses: Option<String>) -> String {
 }
 
 #[get("/hangman")]
-fn hangman() -> String {
-    String::from("nothing here lol")
+fn hangman() -> NamedFile {
+    NamedFile::open(Path::new(
+        "/home/devon/coding/rust-projects/lose_at_hangman_rs/hangman_server/hangman.html",
+    ))
+    .unwrap()
 }
 
 fn main() {
