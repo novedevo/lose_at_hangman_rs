@@ -24,11 +24,13 @@
             margin: 2px;
             min-width: 1rem;
         }
-        #playarea button:hover{
-            background-color:lightblue;
+
+        #playarea button:hover {
+            background-color: lightblue;
         }
+
         #playarea button:active {
-            background-color:mediumslateblue;
+            background-color: mediumslateblue;
         }
     </style>
 </head>
@@ -49,9 +51,6 @@
     let pattern = [];
     let guesses = [];
     reset();
-
-
-
 
     function updateValue() {
 
@@ -91,8 +90,15 @@
         main.removeChild(document.getElementById("submit"));
 
         let guessContainer = document.createElement("p");
-        guessContainer.id = "lastGuess";
-        guessContainer.innerText = "No guesses yet";
+        let currentGuess = document.createElement("span");
+        currentGuess.id = "lastGuess";
+        currentGuess.innerText = "No guesses yet";
+        let guessTracker = document.createElement("span");
+        guessTracker.id = "guessTracker";
+        // guessTracker.innerText = "No guesses yet";
+        guessContainer.appendChild(currentGuess);
+        guessContainer.appendChild(guessTracker);
+
         let guessButton = document.createElement("button");
         guessButton.type = "button";
         guessButton.id = "guessButton";
@@ -125,6 +131,10 @@
     function getNewGuess() {
         let guessContainer = document.getElementById("lastGuess");
         console.log(pattern);
+        document.getElementById("guessTracker").innerText =
+            ", past guesses: " + guesses.join(", ") +
+            ". The server has " + (6 - guesses.filter((guess) => pattern.indexOf(guess) < 0).length) +
+            " guesses remaining";
         fetch("hangman/api?pattern=" + pattern.join("") + "&guesses=" + guesses.join(""))
             .then((response) => response.text())
             .then((text) => {
@@ -132,7 +142,7 @@
                     currentLetter = text;
                     guesses.push(currentLetter);
                     console.log(currentLetter);
-                    guessContainer.innerText = currentLetter;
+                    guessContainer.innerText = "Server guessed: " + currentLetter;
                 } else {
                     guessContainer.innerText = text;
                     document.getElementById("guessButton").remove();
