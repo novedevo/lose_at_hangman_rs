@@ -41,6 +41,23 @@
         <noscript>Please enable JavaScript on this page; nothing works without it, and I promise not to be evil :)<br>
             You can view the full script with inspect element, it's all inline.</noscript>
         <main id="gameboard"></main>
+        <details>
+            <summary>How not to lose at hangman</summary>
+            <p>
+                When playing against a normal human, the strategy is usually: think of long, complicated words, with rare letters, that your opponent is unlikely to know. 
+                This strategy completely fails here (seriously, try it! If it's allowed (scrabble rules), the bot will successfully guess any long word. 
+                Yes, you're very clever for picking symphysy, no, that doesn't count. It's obsolete and rare). 
+                The bot's been fed a list of 300,000 words, along with data on word usage; you're not going to out-vocabulary it. 
+                The real trick is to find holes in its armour: the word prevalence data is necessarily incomplete, and some very common English words are missing (notably, lots of plural nouns and verb conjugations). 
+                If you can find a pattern with a bunch of common letters and one or two rarer ones, <em>with other words in the same pattern using more common letters</em>, it gets stuck.
+                It only has 6 incorrect guesses, and it's going to guess the common letters first. 
+                An example of this is the word "PATS", which is a real word and valid by scrabble rules, and isn't even that uncommon, but there's no data on its prevalence. 
+                As such, the bot quickly determines the *ATS pattern, then struggles to find the first letter. It tries oats, bats, cats, etc, but eventually takes more then 6x the allotted guesses. 
+                Extremely short words also cause it damage, e.g. ax.
+                Unfortunately for my ego, it fails at "the hardest word to guess in hangman", which, according to wikipedia, is jazz.
+            </p>
+            
+        </details>
     </div>
 </body>
 
@@ -125,11 +142,14 @@
     function getNewGuess() {
         let guessContainer = document.getElementById("lastGuess");
         console.log(pattern);
-        document.getElementById("guessTracker").innerText =
-            ", past guesses: " + guesses.join(", ") +
-            ". The server has " + (6 - guesses.filter((guess) => pattern.indexOf(guess) < 0).length) +
-            " guesses remaining";
-        fetch("hangman/api?pattern=" + pattern.join("") + "&guesses=" + guesses.join(""))
+        let innerText = ", past guesses: " + guesses.join(", ") + ". The server has " +
+            (6 - guesses.filter((guess) => pattern.indexOf(guess) < 0).length) + " guesses remaining";
+        document.getElementById("guessTracker").innerText = innerText;
+        let requestString = "api?pattern=" + pattern.join("");
+        if (guesses.length > 0) {
+            requestString += "&guesses=" + guesses.join("");
+        }
+        fetch(requestString)
             .then((response) => response.text())
             .then((text) => {
                 if (text.length === 1) {
