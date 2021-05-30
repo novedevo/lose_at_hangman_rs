@@ -31,7 +31,7 @@ fn api(pattern: String, guesses: Option<String>) -> String {
 #[get("/hangman")]
 fn hangman() -> NamedFile {
     NamedFile::open(Path::new(
-        "/home/devon/coding/rust-projects/lose_at_hangman_rs/hangman_server/hangman.html",
+        "hangman_server/hangman.html",
     ))
     .unwrap()
 }
