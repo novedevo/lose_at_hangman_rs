@@ -24,6 +24,24 @@
             margin: 0 auto;
         }
 
+        #num_form {
+            font-size: 1.25rem;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            column-gap: 0.5rem;
+        }
+
+        #num_form>label {
+            flex: 1 1 100%;
+        }
+
+        input,
+        button {
+            font-size: 1.25rem;
+        }
+
         #playarea {
             font-size: 1.25rem;
             width: 20em;
@@ -74,6 +92,16 @@
             .content {
                 width: 94vw;
                 margin: 0 auto;
+            }
+
+            #num_form>input {
+                /* https://stackoverflow.com/a/42421490 */
+                min-width: 0;
+                flex: 1 0;
+            }
+
+            #um_form>button {
+                flex: 0 1;
             }
 
             #playarea {
@@ -138,10 +166,12 @@
         const numLettersInput = document.querySelector('input');
         pattern = [];
 
+        // Clear out anything that might be in the play area already
         while (element.hasChildNodes()) {
             element.removeChild(element.lastChild);
         }
 
+        // Check the number of letters is valid
         if (isNaN(numLettersInput.valueAsNumber) || numLettersInput.valueAsNumber < 1) {
             let p = document.createElement("p");
             p.innerText = "please only submit positive numbers. my code is fragile and so am i";
@@ -149,6 +179,7 @@
             return;
         }
 
+        // Add letter boxes and periods, representing blank spaces, to our word
         for (let i = 0; i < numLettersInput.valueAsNumber; i++) {
             let button = document.createElement("button");
             button.id = "letterbox" + i;
@@ -160,9 +191,7 @@
         }
 
         let main = document.getElementById("gameboard");
-        main.removeChild(document.getElementById("letterQuery"));
-        main.removeChild(document.getElementById("num_letters"));
-        main.removeChild(document.getElementById("submit"));
+        main.removeChild(document.getElementById("num_form"));
 
         let guessContainer = document.createElement("p");
         let currentGuess = document.createElement("span");
@@ -232,17 +261,34 @@
     function reset() {
         let board = document.getElementById("gameboard");
 
+        // Using a form so that we can use the enter key to activate the 
+        let form = document.createElement("form");
+        form.id = "num_form";
+        form.onsubmit = function (event) {
+            // Prevent the form submitting, or we'll get redirected away.
+            // It seems this has to be before updateValue(), or we get sent
+            // away, anyway. Maybe it's a security things to prevent JS
+            // changing values of input elements before submitting?
+            event.preventDefault();
+            updateValue();
+        };
+
         let letterQuery = document.createElement("label");
         letterQuery.id = "letterQuery";
         letterQuery.innerText = "How many letters is your word?";
+
         let input = document.createElement("input");
         input.type = "number";
         input.id = "num_letters";
+
         let submitButton = document.createElement("button");
-        submitButton.type = "button";
-        submitButton.id = "submit";
-        submitButton.setAttribute("onclick", "updateValue()");
+        submitButton.type = "submit";
         submitButton.innerText = "Submit";
+
+        form.appendChild(letterQuery);
+        form.appendChild(input);
+        form.appendChild(submitButton);
+
         let playArea = document.createElement("div");
         playArea.id = "playarea";
 
@@ -250,9 +296,7 @@
             board.removeChild(board.lastChild);
         }
 
-        board.appendChild(letterQuery);
-        board.appendChild(input);
-        board.appendChild(submitButton);
+        board.appendChild(form);
         board.appendChild(playArea);
 
         currentLetter = " ";
