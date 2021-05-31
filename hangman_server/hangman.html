@@ -86,10 +86,10 @@
             <p>
                 When playing against a normal human, the strategy is usually: think of long, complicated words, with
                 rare letters, that your opponent is unlikely to know.
-                This strategy completely fails here (seriously, try it! If it's allowed (scrabble rules), the bot will
-                successfully guess any long word.
             </p>
             <p>
+                This strategy completely fails here (seriously, try it! If it's allowed (scrabble rules), the bot will
+                successfully guess any long word.
                 Yes, you're very clever for picking symphysy, no, that doesn't count. It's obsolete and rare).
                 The bot's been fed a list of 300,000 words, along with data on word usage; you're not going to
                 out-vocabulary it.
@@ -104,8 +104,6 @@
                 It only has 6 incorrect guesses, and it's going to guess the common letters first.
                 An example of this is the word "PATS", which is a real word and valid by scrabble rules, and isn't even
                 that uncommon, but there's no data on its prevalence.
-            </p>
-            <p>
                 As such, the bot quickly determines the *ATS pattern, then struggles to find the first letter. It tries
                 oats, bats, cats, etc, but eventually takes more then 6x the allotted guesses.
                 Extremely short words also cause it damage, e.g. ax.
