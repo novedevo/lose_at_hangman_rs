@@ -9,20 +9,58 @@
     <title>Lose at Hangman</title>
 
     <style>
-        #playarea {
-            display: flex;
+        * {
+            box-sizing: border-box;
+        }
 
+        body {
+            width: 100vw;
+            padding-top: 10vh;
+            margin: 0;
+        }
+
+        .content {
+            width: 44rem;
+            margin: 0 auto;
+        }
+
+        #num_form {
+            font-size: 1.25rem;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            column-gap: 0.5rem;
+        }
+
+        #num_form>label {
+            flex: 1 1 100%;
+        }
+
+        input,
+        button {
+            font-size: 1.25rem;
+        }
+
+        #playarea {
+            font-size: 1.25rem;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 2px;
         }
 
         #playarea button {
-            font-size: 20px;
+            font-size: inherit;
             background-color: aliceblue;
             /* color: white; */
             border: 2px solid cornflowerblue;
             border-radius: 8px;
-            padding: 2px;
-            margin: 2px;
-            min-width: 1rem;
+            min-width: 1.5em;
+            min-height: 1em;
+            padding: 0.25em 0.25em;
+            margin: 0;
         }
 
         #playarea button:hover {
@@ -31,6 +69,47 @@
 
         #playarea button:active {
             background-color: mediumslateblue;
+        }
+
+        p,
+        label,
+        summary {
+            line-height: 1.3;
+            font-size: 1.2rem;
+        }
+
+        details {
+            margin: 1rem 0;
+        }
+
+        details>p {
+            margin: 1rem 0;
+            text-align: justify;
+        }
+
+        @media (max-width: 44rem) {
+
+            /* Narrow screen target */
+            .content {
+                width: 94vw;
+                margin: 0 auto;
+            }
+
+            #num_form>input {
+                /* https://stackoverflow.com/a/42421490 */
+                min-width: 0;
+                flex: 1 0;
+            }
+
+            #um_form>button {
+                flex: 0 1;
+            }
+
+            #playarea {
+                display: grid;
+                grid-template-columns: repeat(10, 1fr);
+                gap: 2px;
+            }
         }
     </style>
 </head>
@@ -44,19 +123,35 @@
         <details>
             <summary>How not to lose at hangman</summary>
             <p>
-                When playing against a normal human, the strategy is usually: think of long, complicated words, with rare letters, that your opponent is unlikely to know. 
-                This strategy completely fails here (seriously, try it! If it's allowed (scrabble rules), the bot will successfully guess any long word. 
-                Yes, you're very clever for picking symphysy, no, that doesn't count. It's obsolete and rare). 
-                The bot's been fed a list of 300,000 words, along with data on word usage; you're not going to out-vocabulary it. 
-                The real trick is to find holes in its armour: the word prevalence data is necessarily incomplete, and some very common English words are missing (notably, lots of plural nouns and verb conjugations). 
-                If you can find a pattern with a bunch of common letters and one or two rarer ones, <em>with other words in the same pattern using more common letters</em>, it gets stuck.
-                It only has 6 incorrect guesses, and it's going to guess the common letters first. 
-                An example of this is the word "PATS", which is a real word and valid by scrabble rules, and isn't even that uncommon, but there's no data on its prevalence. 
-                As such, the bot quickly determines the *ATS pattern, then struggles to find the first letter. It tries oats, bats, cats, etc, but eventually takes more then 6x the allotted guesses. 
-                Extremely short words also cause it damage, e.g. ax.
-                Unfortunately for my ego, it fails at "the hardest word to guess in hangman", which, according to wikipedia, is jazz.
+                When playing against a normal human, the strategy is usually: think of long, complicated words, with
+                rare letters, that your opponent is unlikely to know.
             </p>
-            
+            <p>
+                This strategy completely fails here (seriously, try it! If it's allowed (scrabble rules), the bot will
+                successfully guess any long word.
+                Yes, you're very clever for picking symphysy, no, that doesn't count. It's obsolete and rare).
+                The bot's been fed a list of 300,000 words, along with data on word usage; you're not going to
+                out-vocabulary it.
+            </p>
+            <p>
+                The real trick is to find holes in its armour: the word prevalence data is necessarily incomplete, and
+                some very common English words are missing (notably, lots of plural nouns and verb conjugations).
+                If you can find a pattern with a bunch of common letters and one or two rarer ones, <em>with other words
+                    in the same pattern using more common letters</em>, it gets stuck.
+            </p>
+            <p>
+                It only has 6 incorrect guesses, and it's going to guess the common letters first.
+                An example of this is the word "PATS", which is a real word and valid by scrabble rules, and isn't even
+                that uncommon, but there's no data on its prevalence.
+                As such, the bot quickly determines the *ATS pattern, then struggles to find the first letter. It tries
+                oats, bats, cats, etc, but eventually takes more then 6x the allotted guesses.
+                Extremely short words also cause it damage, e.g. ax.
+            </p>
+            <p>
+                Unfortunately for my ego, it fails at "the hardest word to guess in hangman", which, according to
+                wikipedia, is jazz.
+            </p>
+
         </details>
     </div>
 </body>
@@ -74,10 +169,12 @@
         const numLettersInput = document.querySelector('input');
         pattern = [];
 
+        // Clear out anything that might be in the play area already
         while (element.hasChildNodes()) {
             element.removeChild(element.lastChild);
         }
 
+        // Check the number of letters is valid
         if (isNaN(numLettersInput.valueAsNumber) || numLettersInput.valueAsNumber < 1) {
             let p = document.createElement("p");
             p.innerText = "please only submit positive numbers. my code is fragile and so am i";
@@ -85,6 +182,7 @@
             return;
         }
 
+        // Add letter boxes and periods, representing blank spaces, to our word
         for (let i = 0; i < numLettersInput.valueAsNumber; i++) {
             let button = document.createElement("button");
             button.id = "letterbox" + i;
@@ -96,9 +194,7 @@
         }
 
         let main = document.getElementById("gameboard");
-        main.removeChild(document.getElementById("letterQuery"));
-        main.removeChild(document.getElementById("num_letters"));
-        main.removeChild(document.getElementById("submit"));
+        main.removeChild(document.getElementById("num_form"));
 
         let guessContainer = document.createElement("p");
         let currentGuess = document.createElement("span");
@@ -168,17 +264,34 @@
     function reset() {
         let board = document.getElementById("gameboard");
 
+        // Using a form so that we can use the enter key to activate the 
+        let form = document.createElement("form");
+        form.id = "num_form";
+        form.onsubmit = function (event) {
+            // Prevent the form submitting, or we'll get redirected away.
+            // It seems this has to be before updateValue(), or we get sent
+            // away, anyway. Maybe it's a security things to prevent JS
+            // changing values of input elements before submitting?
+            event.preventDefault();
+            updateValue();
+        };
+
         let letterQuery = document.createElement("label");
         letterQuery.id = "letterQuery";
         letterQuery.innerText = "How many letters is your word?";
+
         let input = document.createElement("input");
         input.type = "number";
         input.id = "num_letters";
+
         let submitButton = document.createElement("button");
-        submitButton.type = "button";
-        submitButton.id = "submit";
-        submitButton.setAttribute("onclick", "updateValue()");
+        submitButton.type = "submit";
         submitButton.innerText = "Submit";
+
+        form.appendChild(letterQuery);
+        form.appendChild(input);
+        form.appendChild(submitButton);
+
         let playArea = document.createElement("div");
         playArea.id = "playarea";
 
@@ -186,9 +299,7 @@
             board.removeChild(board.lastChild);
         }
 
-        board.appendChild(letterQuery);
-        board.appendChild(input);
-        board.appendChild(submitButton);
+        board.appendChild(form);
         board.appendChild(playArea);
 
         currentLetter = " ";
