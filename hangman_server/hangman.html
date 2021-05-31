@@ -44,9 +44,10 @@
 
         #playarea {
             font-size: 1.25rem;
-            width: 20em;
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
             gap: 2px;
         }
 
@@ -105,7 +106,9 @@
             }
 
             #playarea {
-                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(10, 1fr);
+                gap: 2px;
             }
         }
     </style>
