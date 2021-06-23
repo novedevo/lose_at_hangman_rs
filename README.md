@@ -7,5 +7,6 @@ The next version of [Rocket](https://rocket.rs) will be compiled with stable Rus
 This can be accomplished by running, e.g., `rustup default nightly`
 
 Running `cargo run --bin hangman_server` will run the web server, which is the most ergonomic way to play hangman. 
-Find it at localhost:8000/hangman in your browser of choice, or run it on a server, exposed to the world. 
+I recommend building it in release mode, as this is a CPU-bound project on most systems, and `rustc` optimizations are powerful.
+Find it at [localhost:8000/hangman](http://localhost:8000/hangman) in your browser of choice, or run it on a server, exposed to the world. 
 It's up to you.
