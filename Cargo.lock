@@ -494,6 +494,7 @@ name = "hangman_server"
 version = "0.1.0"
 dependencies = [
  "hangman_lib",
+ "lazy_static",
  "rocket",
 ]
 

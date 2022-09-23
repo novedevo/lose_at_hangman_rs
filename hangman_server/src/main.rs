@@ -1,13 +1,15 @@
-use hangman_lib::*;
-use rocket::{fs::NamedFile, get, launch, routes};
-use std::path::Path;
+use hangman_lib::guessr::Guessr;
+use lazy_static::lazy_static;
+use rocket::{get, launch, response::content::RawHtml, routes};
 
-static mut MAIN_GUESSER: guessr::Guessr = guessr::Guessr::const_default();
+lazy_static! {
+    static ref MAIN_GUESSER: Guessr = Guessr::new();
+}
 
 #[get("/api?<pattern>&<guesses>")]
 fn api(pattern: String, guesses: Option<String>) -> String {
     let pattern = pattern.to_ascii_uppercase();
-    let mut guesser = unsafe { MAIN_GUESSER.clone() };
+    let mut guesser = MAIN_GUESSER.clone();
     guesser.filter_length(pattern.len());
     let pattern = if let Some(guesses) = guesses {
         if !guesses.is_empty() {
@@ -26,16 +28,11 @@ fn api(pattern: String, guesses: Option<String>) -> String {
 }
 
 #[get("/")]
-async fn hangman() -> NamedFile {
-    NamedFile::open(Path::new("hangman_server/hangman.html"))
-        .await
-        .unwrap()
+async fn hangman() -> RawHtml<&'static str> {
+    RawHtml(include_str!("../hangman.html"))
 }
 
 #[launch]
 fn rocket() -> _ {
-    unsafe {
-        MAIN_GUESSER = guessr::Guessr::new();
-    }
     rocket::build().mount("/", routes![api, hangman])
 }
