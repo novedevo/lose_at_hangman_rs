@@ -1,10 +1,6 @@
 [workspace]
 
-members = [
-    "hangman_lib",
-    "hangman_cli",
-    "hangman_server",
-]
+members = ["hangman_lib", "hangman_server"]
 
 [profile.dev]
 opt-level = 1
