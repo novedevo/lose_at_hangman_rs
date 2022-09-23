@@ -8,9 +8,8 @@ edition = "2018"
 
 
 [dependencies]
-csv = "*"
-regex = "*"
-clap = "3.0.0-beta.2"
-serde = "*"
-bincode = "*"
-rustc-hash = "*"
+csv = "1"
+regex = "1"
+serde = "1"
+bincode = "1"
+rustc-hash = "1"

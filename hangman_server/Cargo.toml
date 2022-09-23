@@ -6,5 +6,5 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = "*"
+rocket = "0.4"
 hangman_lib = { path = "../hangman_lib" }
