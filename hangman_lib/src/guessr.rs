@@ -1,4 +1,3 @@
-
 #[derive(Clone)]
 pub struct Guessr {
     words: Vec<(String, f64)>,
@@ -23,7 +22,8 @@ impl Guessr {
 
     pub fn new() -> Self {
         Self {
-            words: bincode::deserialize(include_bytes!("../../data/serialized_wordvec.bin")).unwrap(),
+            words: bincode::deserialize(include_bytes!("../../data/serialized_wordvec.bin"))
+                .unwrap(),
             guesses: Vec::new(),
             last_pattern: String::new(),
         }
@@ -106,5 +106,8 @@ fn get_letter_frequencies(words: &[(String, f64)]) -> [f64; 26] {
 }
 
 fn filter_regex(words: Vec<(String, f64)>, pattern: regex::Regex) -> Vec<(String, f64)> {
-    words.into_iter().filter(|(word, _)| pattern.is_match(word)).collect()
+    words
+        .into_iter()
+        .filter(|(word, _)| pattern.is_match(word))
+        .collect()
 }

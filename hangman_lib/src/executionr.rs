@@ -10,7 +10,10 @@ impl Executionr {
         Self {
             wrong_guesses: 0,
             guess_limit: 6,
-            current_regex: regex::Regex::new(&std::str::from_utf8(&vec![b'.'; word.len()]).unwrap()).unwrap(),
+            current_regex: regex::Regex::new(
+                &std::str::from_utf8(&vec![b'.'; word.len()]).unwrap(),
+            )
+            .unwrap(),
             word,
         }
     }
@@ -34,7 +37,8 @@ impl Executionr {
                 })
                 .collect::<Vec<u8>>();
 
-            self.current_regex = regex::Regex::new(std::str::from_utf8(&next_regex_string).unwrap()).unwrap();
+            self.current_regex =
+                regex::Regex::new(std::str::from_utf8(&next_regex_string).unwrap()).unwrap();
         }
 
         self.current_regex.clone()

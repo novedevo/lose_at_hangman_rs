@@ -1,10 +1,5 @@
-#![feature(proc_macro_hygiene, decl_macro)]
-
-#[macro_use]
-extern crate rocket;
-
 use hangman_lib::*;
-use rocket::response::NamedFile;
+use rocket::{fs::NamedFile, get, launch, routes};
 use std::path::Path;
 
 static mut MAIN_GUESSER: guessr::Guessr = guessr::Guessr::const_default();
@@ -31,13 +26,16 @@ fn api(pattern: String, guesses: Option<String>) -> String {
 }
 
 #[get("/")]
-fn hangman() -> NamedFile {
-    NamedFile::open(Path::new("hangman_server/hangman.html")).unwrap()
+async fn hangman() -> NamedFile {
+    NamedFile::open(Path::new("hangman_server/hangman.html"))
+        .await
+        .unwrap()
 }
 
-fn main() {
+#[launch]
+fn rocket() -> _ {
     unsafe {
         MAIN_GUESSER = guessr::Guessr::new();
     }
-    rocket::ignite().mount("/", routes![api, hangman]).launch();
+    rocket::build().mount("/", routes![api, hangman])
 }
