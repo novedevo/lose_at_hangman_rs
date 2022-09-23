@@ -10,10 +10,8 @@ impl Executionr {
         Self {
             wrong_guesses: 0,
             guess_limit: 6,
-            current_regex: regex::Regex::new(
-                &std::str::from_utf8(&vec![b'.'; word.len()]).unwrap(),
-            )
-            .unwrap(),
+            current_regex: regex::Regex::new(std::str::from_utf8(&vec![b'.'; word.len()]).unwrap())
+                .unwrap(),
             word,
         }
     }

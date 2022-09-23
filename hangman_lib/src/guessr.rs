@@ -46,7 +46,7 @@ impl Guessr {
 
     pub fn new_regex(&mut self, pattern: &str) {
         if pattern != self.last_pattern {
-            self.words = filter_regex(self.words.clone(), regex::Regex::new(&pattern).unwrap());
+            self.words = filter_regex(self.words.clone(), regex::Regex::new(pattern).unwrap());
         }
     }
 
