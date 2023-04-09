@@ -1,11 +1,11 @@
 [package]
 name = "hangman_server"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = "0.5.0-rc.2"
+rocket = "0.5.0-rc.3"
 hangman_lib = { path = "../hangman_lib" }
 lazy_static = "1.4.0"
